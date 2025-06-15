@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+ema_ribbon,1min,993.94,52.17,-0.61,46,24,22,0.98
+ema_ribbon,2min,1072.47,60.87,7.25,46,28,18,1.4
+ema_ribbon,3min,1072.47,60.87,7.25,46,28,18,1.4
+ema_ribbon,4min,1135.41,67.39,13.54,46,31,15,1.86
+ema_ribbon,5min,1052.28,58.7,5.23,46,27,19,1.28

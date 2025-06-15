@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+vwap,1min,1000.0,0.0,0.0,0,0,0,inf
+vwap,2min,1000.0,0.0,0.0,0,0,0,inf
+vwap,3min,1000.0,0.0,0.0,0,0,0,inf
+vwap,4min,1000.0,0.0,0.0,0,0,0,inf
+vwap,5min,1000.0,0.0,0.0,0,0,0,inf

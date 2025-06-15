@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+bollinger_breakout,1min,745.57,49.9,-25.44,521,260,261,0.9
+bollinger_breakout,2min,972.91,52.59,-2.71,521,274,247,1.0
+bollinger_breakout,3min,1269.57,55.28,26.96,521,288,233,1.11
+bollinger_breakout,4min,1069.92,53.55,6.99,521,279,242,1.04
+bollinger_breakout,5min,1318.77,55.66,31.88,521,290,231,1.13

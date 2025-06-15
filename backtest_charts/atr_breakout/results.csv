@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+atr_breakout,1min,748.99,47.55,-25.1,286,136,150,0.82
+atr_breakout,2min,707.47,46.5,-29.25,286,133,153,0.78
+atr_breakout,3min,655.67,45.1,-34.43,286,129,157,0.74
+atr_breakout,4min,808.17,48.95,-19.18,286,140,146,0.86
+atr_breakout,5min,872.02,50.35,-12.8,286,144,142,0.91

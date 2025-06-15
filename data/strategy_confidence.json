@@ -1,0 +1,30 @@
+{
+  "macd_cross": {
+    "confidence": 0.32,
+    "last_updated": "2025-06-15T02:38:58.402368"
+  },
+  "adx_trend": {
+    "confidence": 0.48,
+    "last_updated": "2025-06-15T01:28:32.341777"
+  },
+  "ichimoku_base_conversion": {
+    "confidence": 0.3072,
+    "last_updated": "2025-06-15T02:42:34.270725"
+  },
+  "trend_follow": {
+    "confidence": 0.5082,
+    "last_updated": "2025-06-15T02:08:10.283848"
+  },
+  "heikin_ashi": {
+    "confidence": 0.32,
+    "last_updated": "2025-06-15T02:41:10.240785"
+  },
+  "psar": {
+    "confidence": 0.3482,
+    "last_updated": "2025-06-15T02:37:52.352470"
+  },
+  "breakout": {
+    "confidence": 0.381,
+    "last_updated": "2025-06-15T02:23:00.286149"
+  }
+}

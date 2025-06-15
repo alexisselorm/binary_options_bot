@@ -1,0 +1,40 @@
+STRATEGY PERFORMANCE SUMMARY
+========================================
+
+TOP PERFORMERS (1min trades):
+          Strategy  Final Balance  Win Rate (%)  Return (%)
+sma_rsi_macd_combo         1009.0         100.0         0.9
+              vwap         1000.0           0.0         0.0
+         vol_spike         1000.0           0.0         0.0
+
+TOP PERFORMERS (2min trades):
+    Strategy  Final Balance  Win Rate (%)  Return (%)
+trend_follow        1218.32         53.46       21.83
+   adx_trend        1150.79         53.29       15.08
+  ema_ribbon        1072.47         60.87        7.25
+
+TOP PERFORMERS (3min trades):
+          Strategy  Final Balance  Win Rate (%)  Return (%)
+bollinger_breakout        1269.57         55.28       26.96
+      trend_follow        1172.87         53.35       17.29
+         adx_trend        1107.85         53.18       10.79
+
+TOP PERFORMERS (4min trades):
+                Strategy  Final Balance  Win Rate (%)  Return (%)
+ichimoku_base_conversion        1488.56         53.37       48.86
+               adx_trend        1365.52         53.81       36.55
+            trend_follow        1241.71         53.52       24.17
+
+TOP PERFORMERS (5min trades):
+                Strategy  Final Balance  Win Rate (%)  Return (%)
+ichimoku_base_conversion        1905.87         53.68       90.59
+      bollinger_breakout        1318.77         55.66       31.88
+               adx_trend        1195.38         53.41       19.54
+
+OVERALL BEST STRATEGIES:
+Strategy
+adx_trend             1109.750
+trend_follow          1098.910
+bollinger_breakout    1075.348
+ema_ribbon            1065.314
+golden_death_cross    1035.068

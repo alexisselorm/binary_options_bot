@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+sentiment_volatility_stochastic_fade,1min,926.86,48.28,-7.31,87,42,45,0.84
+sentiment_volatility_stochastic_fade,2min,981.25,51.72,-1.87,87,45,42,0.96
+sentiment_volatility_stochastic_fade,3min,981.25,51.72,-1.87,87,45,42,0.96
+sentiment_volatility_stochastic_fade,4min,981.25,51.72,-1.87,87,45,42,0.96
+sentiment_volatility_stochastic_fade,5min,909.4,47.13,-9.06,87,41,46,0.8

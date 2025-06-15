@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+volatility_ladder_strategy,1min,984.85,50.0,-1.52,28,14,14,0.9
+volatility_ladder_strategy,2min,1003.75,53.57,0.37,28,15,13,1.04
+volatility_ladder_strategy,3min,1003.75,53.57,0.37,28,15,13,1.04
+volatility_ladder_strategy,4min,948.11,42.86,-5.19,28,12,16,0.68
+volatility_ladder_strategy,5min,984.85,50.0,-1.52,28,14,14,0.9

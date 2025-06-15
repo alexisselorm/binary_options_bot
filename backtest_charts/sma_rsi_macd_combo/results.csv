@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+sma_rsi_macd_combo,1min,1009.0,100.0,0.9,1,1,0,inf
+sma_rsi_macd_combo,2min,1009.0,100.0,0.9,1,1,0,inf
+sma_rsi_macd_combo,3min,1009.0,100.0,0.9,1,1,0,inf
+sma_rsi_macd_combo,4min,1009.0,100.0,0.9,1,1,0,inf
+sma_rsi_macd_combo,5min,990.0,0.0,-1.0,1,0,1,0.0

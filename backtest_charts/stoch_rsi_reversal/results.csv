@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+stoch_rsi_reversal,1min,712.51,48.35,-28.75,395,191,204,0.84
+stoch_rsi_reversal,2min,525.65,44.3,-47.43,395,175,220,0.72
+stoch_rsi_reversal,3min,754.33,49.11,-24.57,395,194,201,0.87
+stoch_rsi_reversal,4min,783.56,49.62,-21.64,395,196,199,0.89
+stoch_rsi_reversal,5min,783.56,49.62,-21.64,395,196,199,0.89

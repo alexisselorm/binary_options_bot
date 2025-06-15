@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+bollinger_bands,1min,759.88,50.1,-24.01,521,261,260,0.9
+bollinger_bands,2min,582.32,47.41,-41.77,521,247,274,0.81
+bollinger_bands,3min,446.25,44.72,-55.38,521,233,288,0.73
+bollinger_bands,4min,529.52,46.45,-47.05,521,242,279,0.78
+bollinger_bands,5min,429.6,44.34,-57.04,521,231,290,0.72

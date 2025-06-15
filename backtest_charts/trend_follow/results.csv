@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+trend_follow,1min,688.78,51.75,-31.12,1747,904,843,0.97
+trend_follow,2min,1218.32,53.46,21.83,1747,934,813,1.03
+trend_follow,3min,1172.87,53.35,17.29,1747,932,815,1.03
+trend_follow,4min,1241.71,53.52,24.17,1747,935,812,1.04
+trend_follow,5min,1172.87,53.35,17.29,1747,932,815,1.03

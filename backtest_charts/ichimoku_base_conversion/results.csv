@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+ichimoku_base_conversion,1min,301.48,51.36,-69.85,4186,2150,2036,0.95
+ichimoku_base_conversion,2min,440.94,51.84,-55.91,4186,2170,2016,0.97
+ichimoku_base_conversion,3min,961.34,52.82,-3.87,4186,2211,1975,1.01
+ichimoku_base_conversion,4min,1488.56,53.37,48.86,4186,2234,1952,1.03
+ichimoku_base_conversion,5min,1905.87,53.68,90.59,4186,2247,1939,1.04

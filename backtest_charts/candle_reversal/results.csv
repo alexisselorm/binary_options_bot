@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+candle_reversal,1min,980.1,0.0,-1.99,2,0,2,0.0
+candle_reversal,2min,980.1,0.0,-1.99,2,0,2,0.0
+candle_reversal,3min,980.1,0.0,-1.99,2,0,2,0.0
+candle_reversal,4min,998.91,50.0,-0.11,2,1,1,0.9
+candle_reversal,5min,998.91,50.0,-0.11,2,1,1,0.9

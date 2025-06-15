@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+macd_cross,1min,104.79,50.14,-89.52,4346,2179,2167,0.9
+macd_cross,2min,117.45,50.28,-88.25,4346,2185,2161,0.91
+macd_cross,3min,256.06,51.22,-74.39,4346,2226,2120,0.95
+macd_cross,4min,436.03,51.86,-56.4,4346,2254,2092,0.97
+macd_cross,5min,162.26,50.67,-83.77,4346,2202,2144,0.92

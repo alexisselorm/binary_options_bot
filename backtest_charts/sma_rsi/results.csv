@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+sma_rsi,1min,944.06,50.41,-5.59,123,62,61,0.91
+sma_rsi,2min,858.46,46.34,-14.15,123,57,66,0.78
+sma_rsi,3min,874.93,47.15,-12.51,123,58,65,0.8
+sma_rsi,4min,810.87,43.9,-18.91,123,54,69,0.7
+sma_rsi,5min,751.5,40.65,-24.85,123,50,73,0.62

@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+stoch_rsi,1min,638.39,47.7,-36.16,457,218,239,0.82
+stoch_rsi,2min,462.1,43.98,-53.79,457,201,256,0.71
+stoch_rsi,3min,638.39,47.7,-36.16,457,218,239,0.82
+stoch_rsi,4min,614.57,47.26,-38.54,457,216,241,0.81
+stoch_rsi,5min,650.64,47.92,-34.94,457,219,238,0.83

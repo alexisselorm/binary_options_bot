@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+heikin_ashi,1min,81.84,49.84,-91.82,4346,2166,2180,0.89
+heikin_ashi,2min,49.93,49.24,-95.01,4346,2140,2206,0.87
+heikin_ashi,3min,80.3,49.82,-91.97,4346,2165,2181,0.89
+heikin_ashi,4min,104.79,50.14,-89.52,4346,2179,2167,0.9
+heikin_ashi,5min,126.73,50.37,-87.33,4346,2189,2157,0.91

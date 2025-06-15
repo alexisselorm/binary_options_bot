@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+psar,1min,329.44,50.09,-67.06,2106,1055,1051,0.9
+psar,2min,355.46,50.28,-64.45,2106,1059,1047,0.91
+psar,3min,438.14,50.81,-56.19,2106,1070,1036,0.93
+psar,4min,691.44,51.95,-30.86,2106,1094,1012,0.97
+psar,5min,390.91,50.52,-60.91,2106,1064,1042,0.92

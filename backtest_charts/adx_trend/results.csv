@@ -1,0 +1,6 @@
+Strategy,Duration,Final Balance,Win Rate (%),Return (%),Total Trades,Wins,Losses,Profit Factor
+adx_trend,1min,729.21,51.92,-27.08,1747,907,840,0.97
+adx_trend,2min,1150.79,53.29,15.08,1747,931,816,1.03
+adx_trend,3min,1107.85,53.18,10.79,1747,929,818,1.02
+adx_trend,4min,1365.52,53.81,36.55,1747,940,807,1.05
+adx_trend,5min,1195.38,53.41,19.54,1747,933,814,1.03

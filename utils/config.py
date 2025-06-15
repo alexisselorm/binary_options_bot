@@ -16,7 +16,7 @@ class Config:
     is pulled from the operating‑system level environment.
     """
 
-    def __init__(self, env_path: str | Path = ".env") -> None:
+    def __init__(self, env_path: str | Path = "env") -> None:
         env_path = Path(env_path)
         if not env_path.exists():
             raise FileNotFoundError(f".env file not found at {env_path}")

@@ -1,34 +1,38 @@
 {
   "macd_cross": {
-    "confidence": 0.32,
-    "last_updated": "2025-06-15T02:38:58.402368"
+    "confidence": 0.2738,
+    "last_updated": "2025-06-15T19:31:34.655886"
   },
   "adx_trend": {
-    "confidence": 0.48,
-    "last_updated": "2025-06-15T01:28:32.341777"
+    "confidence": 0.2598,
+    "last_updated": "2025-06-15T20:33:48.352430"
   },
   "ichimoku_base_conversion": {
-    "confidence": 0.3072,
-    "last_updated": "2025-06-15T02:42:34.270725"
+    "confidence": 0.3566,
+    "last_updated": "2025-06-15T20:36:08.310093"
   },
   "trend_follow": {
-    "confidence": 0.4066,
-    "last_updated": "2025-06-15T18:26:54.352978"
+    "confidence": 0.2602,
+    "last_updated": "2025-06-15T18:43:44.733527"
   },
   "heikin_ashi": {
-    "confidence": 0.32,
-    "last_updated": "2025-06-15T02:41:10.240785"
+    "confidence": 0.256,
+    "last_updated": "2025-06-15T19:32:46.781613"
   },
   "psar": {
-    "confidence": 0.4786,
-    "last_updated": "2025-06-15T18:36:50.378690"
+    "confidence": 0.5787,
+    "last_updated": "2025-06-15T21:14:00.295129"
   },
   "breakout": {
-    "confidence": 0.5464,
-    "last_updated": "2025-06-15T18:37:58.876656"
+    "confidence": 0.4398,
+    "last_updated": "2025-06-15T21:38:02.432198"
   },
   "atr_breakout": {
-    "confidence": 0.6,
-    "last_updated": "2025-06-15T18:28:02.511029"
+    "confidence": 0.48,
+    "last_updated": "2025-06-15T18:46:02.350494"
+  },
+  "bollinger_breakout": {
+    "confidence": 0.5738,
+    "last_updated": "2025-06-15T21:02:56.582895"
   }
 }

@@ -70,42 +70,130 @@ binary_options_bot/
 
 ## ⚙️ Installation
 
-```bash
-git clone https://github.com/yourname/binary-options-bot.git
-cd binary-options-bot
+Here’s an updated **Installation** section that keeps the bare-metal (venv) route **and** adds a clean, copy-paste-ready **Docker-only** workflow—no docker-compose required.
 
-# Recommended: Python 3.10+ venv
-python -m venv .venv && source .venv/bin/activate
+````markdown
+## ⚙️ Installation
 
-pip install -r requirements.txt
-```
-
-> **Tip:** GPU users – install `tensorflow[gpu]` & make sure CUDA 11.8 is on PATH.
+> **Prerequisites**
+>
+> - Git + Conda + Python 3.10 (only for the local route).
+> - Docker 23 + (This is the preferred option).
+> - A valid `env` file with your API keys & runtime settings.
 
 ---
 
-## 🔑 Environment Variables (`.env`)
+### ▶️ Option A – Local (Python venv) Or Conda
 
-| Key                  | Description                                |
-| -------------------- | ------------------------------------------ |
-| `API_TOKEN`          | Deriv API token                            |
-| `APP_ID`             | Deriv App‑ID                               |
-| `ASSET`              | Symbol e.g. `R_100`                        |
-| `TIMEFRAME`          | Candle timeframe (minutes)                 |
-| `EXPIRY`             | Binary expiry (minutes)                    |
-| `MIN_BALANCE`        | Abort if equity below                      |
-| `MODEL_PATH_LSTM`    | `models/lstm_model.keras`                  |
-| `MODEL_PATH_XGB`     | `models/xgb_model.json`                    |
-| `MODEL_PATH_RL`      | `models/ppo_agent.zip`                     |
-| `TRADE_HISTORY_PATH` | CSV log (default `logs/trade_history.csv`) |
-| `SIGNAL_THRESHOLD`   | 0.6 by default                             |
-| `MAX_STAKE`          | hard cap per trade                         |
+```bash
+# 1. Grab the code
+git clone https://github.com/yourname/binary-options-bot.git
+cd binary-options-bot
+
+# 2. Create & activate a Python 3.10 virtual environment
+python -m venv .venv      # macOS/Linux
+# py -3 -m venv .venv     # Windows
+source .venv/bin/activate # Windows: .venv\Scripts\activate
+
+# 3. Install Python dependencies
+pip install -r requirements.txt
+conda install -c conda-forge ta-lib  # Optional: for technical analysis of some strategies
+```
+````
+
+Run the bot:
+
+```bash
+python main.py
+```
+
+---
+
+### ▶️ Option B – Docker (no docker-compose)
+
+1. **Build the image**
+
+   ```bash
+   docker build -t binary-options-bot .
+   ```
+
+2. **Run the container**
+
+   ```bash
+   docker run -d --env-file env binary-options-bot
+   ```
+
+3. **Known Issue with logs in docker**
+
+   ```bash
+   docker logs -f <container_id>
+   # This doesn't show anything and I'm open to suggestions on how to fix it.
+   ```
+
+   That’s it—choose the route that best suits your workflow. Happy trading! 🚀
+
+---
+
+## 🔑 Environment Variables (`env`)
+
+**Get your APPID and API keys from [Deriv API](https://api.deriv.com/dashboard/)** and set them in the `env` file in the root directory.
+
+```bash
+# Copy .env.example to env (note that there's no '.' infront of env ) and fill in your APP ID, API token from Deriv
+```
+
+Configure the bot behavior by editing the `env` file:
+
+| Key                | Description                                                            |
+| ------------------ | ---------------------------------------------------------------------- |
+| `APP_ID`           | Your Deriv App ID                                                      |
+| `API_TOKEN`        | Your Deriv API token                                                   |
+| `ASSET`            | Trading symbol (e.g., `R_100`)                                         |
+| `EXPIRY`           | Trade expiry in minutes (e.g., `5`)                                    |
+| `STAKE`            | Default stake amount per trade                                         |
+| `TIMEFRAME`        | Candle timeframe in minutes (e.g., `1`)                                |
+| `TELEGRAM_TOKEN`   | Telegram bot token for trade notifications                             |
+| `TELEGRAM_CHAT_ID` | Chat ID to receive Telegram alerts                                     |
+| `BACKTEST`         | Whether to run backtesting instead of live trading (`true` or `false`) |
+
+### 🧠 Model Configuration
+
+| Key                | Description                                                  |
+| ------------------ | ------------------------------------------------------------ |
+| `MODEL_TYPE`       | Type of model to use: `lstm`, `xgboost`, `hybrid`, or `rule` |
+| `MODEL_PATH_LSTM`  | Path to LSTM model file (`.h5`)                              |
+| `MODEL_PATH_XGB`   | Path to XGBoost model file (`.json`)                         |
+| `MODEL_PATH_RL`    | Path to Reinforcement Learning model (`.zip`)                |
+| `SIGNAL_THRESHOLD` | Confidence threshold to trigger trades (`0.0`–`1.0`)         |
+| `SEQUENCE_LENGTH`  | Number of timesteps to use for sequence models (e.g., `100`) |
+
+### 💵 Risk Management
+
+| Key                      | Description                                                |
+| ------------------------ | ---------------------------------------------------------- |
+| `MAX_CONSECUTIVE_LOSSES` | Stop trading after this many losses in a row               |
+| `TRADE_RISK_PERCENT`     | Risk per trade as a percentage of current balance          |
+| `MIN_BALANCE`            | Halt trading if balance drops below this threshold         |
+| `MARTINGALE_MODE`        | Position sizing: `off`, `martingale`, or `anti-martingale` |
+
+### 📊 Backtesting
+
+| Key                    | Description                                          |
+| ---------------------- | ---------------------------------------------------- |
+| `HISTORICAL_DATA_PATH` | Path to CSV with historical candle data              |
+| `SAVE_TRADE_HISTORY`   | Whether to save trades to a file (`true` or `false`) |
+| `TRADE_HISTORY_PATH`   | File path where trade history is stored              |
 
 ---
 
 ## 🚦 Usage
 
-### 1. Train models
+### 1. Train models (Not in use.)
+
+**This has been commented out in the code and the requirements as well have been commented out**
+If you want to use models, uncomment the code in `requirements.txt` and `trading/strategy.py`:
+Just a heads up:
+**_Predicting the Financial markets with AI/ML is dead difficult😭_**
 
 ```bash
 python ml/training_pipeline.py          # LSTM + XGB
@@ -129,23 +217,85 @@ python main.py
 
 Live loop:
 
-1. Fetch 2 000 candles via Deriv WebSocket
-2. Compute indicators (pandas‑ta)
-3. Rule strategies + LSTM/XGB → directions  
-   _Optionally_ vote for ≥3 agreement
-4. RL agent sizes stake
-5. Execute via `proposal → buy`
-6. On settle → log to `trade_history.csv` + update `confidence_tracker.json`
+## 🔁 Trading Logic Flow
+
+### 📊 Rule-Based Path
+
+1. **Fetch Candle Data**
+   → Stream 2,000 candles via Deriv WebSocket (real-time)
+
+2. **Apply Technical Indicators**
+   → Compute momentum, trend, volatility indicators using `pandas-ta`
+
+3. **Generate Rule-Based Signals**
+   → Apply preconfigured rule-based strategies (e.g., RSI, EMA crossovers)
+
+4. **Optional Voting Logic (Currently in use)**
+   → If 3 or more rule strategies agree on the same direction(CALL or PUT), proceed
+
+5. **Stake Calculation**
+   → Use fixed or 1% of balance
+
+6. **Trade Execution**
+   → Send `proposal → buy` via Deriv API
+
+7. **On Settlement**
+   → Log trade result to `logs/trade_history.csv`
+   → Update `logs/confidence_tracker.json` (to monitor signal strength over time)
 
 ---
 
+### 🤖 AI-Powered Path (Not in Use)
+
+1. **Fetch Candle Data**
+   → Stream 2,000 candles via Deriv WebSocket (real-time)
+
+2. **Prepare Model Input**
+   → Use historical candles and indicators to generate input features
+
+3. **Run ML Models**
+   → LSTM and/or XGBoost infer market direction (CALL / PUT)
+
+4. **RL Agent Sizing**
+   → PPO-based agent determines stake size and adjusts dynamically
+
+5. **Trade Execution**
+   → Send `proposal → buy` via Deriv API
+
+6. **On Settlement**
+   → Log to:
+
+   - `logs/trade_history.csv`
+   - `logs/confidence_tracker.json` (to monitor signal strength over time)
+
 ## Confidence Tracker
 
-A dynamic system that chooses which strategy to use based on their performance over time.
+A dynamic system that chooses which strategy to use based on it's performance over time.
 | Field | Meaning |
 | -------------- | ----------------------------- |
 | `confidence` | Decay‑weighted win‑rate (0‑1) |
 | `last_updated` | ISO timestamp |
+
+Eg:
+
+```json
+{
+  "sma_rsi": {
+    "confidence": 0.2458,
+    "last_updated": "2024-01-01T12:00:00Z"
+  },
+  "macd_cross": {
+    "confidence": 0.45,
+    "last_updated": "2024-01-01T12:00:00Z"
+  },
+  "bollinger_bands": {
+    "confidence": 0.6548,
+    "last_updated": "2024-01-01T12:00:00Z"
+  }
+}
+-> This example means that if all these 3 strategies agree on a direction, the bot will execute a trade with the bollinger bands strategy because it has a higher confidence.
+
+```
 
 Update rule:
 
@@ -237,17 +387,18 @@ Use `get_confidence(strat)` inside `strategy.py` to bias voting toward high‑pe
 
 PRs welcome! Please:
 
+**I am particularly looking for help on the notifications with telegram and the docker logs showing:**
+
 1. Open issue describing change
-2. Follow `black` + `isort`
 
 ---
 
 ## 📜 License
 
-MIT – see `LICENSE`.
+MIT – see [`LICENSE`](LICENSE.md).
 
 ---
 
 ## 💬 Contact
 
-Raise an issue or ping me on [Twitter](https://twitter.com/yourhandle).
+Raise an issue, give a suggestion or ping me on [LinkedIn](https://www.linkedin.com/in/alexis-selorm/).

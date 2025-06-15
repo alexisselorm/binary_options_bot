@@ -1,3 +1,5 @@
+import pandas as pd
+import warnings
 import asyncio
 from utils.config import Config
 from broker.deriv import DerivAPI, DerivAPIWrapper
@@ -5,8 +7,8 @@ from trading.executor import TradeExecutor
 from notifier.telegram import TelegramNotifier
 
 
-import warnings
-import pandas as pd
+print("✅ Bot is now running from inside Docker!")
+
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning, module="pandas_ta")
 pd.options.mode.chained_assignment = None        # or "warn" / "raise"

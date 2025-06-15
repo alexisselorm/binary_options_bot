@@ -282,18 +282,18 @@ Eg:
 {
   "sma_rsi": {
     "confidence": 0.2458,
-    "last_updated": "2024-01-01T12:00:00Z"
+    "last_updated": "2025-06-15T21:38:02.432198"
   },
   "macd_cross": {
     "confidence": 0.45,
-    "last_updated": "2024-01-01T12:00:00Z"
+    "last_updated": "2025-06-15T21:14:00.295129"
   },
   "bollinger_bands": {
     "confidence": 0.6548,
-    "last_updated": "2024-01-01T12:00:00Z"
+    "last_updated": "2025-06-15T18:46:02.350494"
   }
 }
--> This example means that if all these 3 strategies agree on a direction, the bot will execute a trade with the bollinger bands strategy because it has a higher confidence.
+-> This example means that if all these 3 strategies agree on a direction(say PUT), the bot will execute a trade with the bollinger bands strategy because it has a higher confidence.
 
 ```
 
@@ -345,6 +345,8 @@ Use `get_confidence(strat)` inside `strategy.py` to bias voting toward high‑pe
 
 ### Quick Performance Summary (Account Balance was initially $1000)
 
+**This is a summary of the backtest results for each strategy across different expiry timeframes (1min to 5min). The values represent the final account balance after running the backtest.**
+
 #### Screenshots of backtest results are saved in `backtest_charts/`.
 
 | Duration                             | 1min    | 2min    | 3min    | 4min    | 5min    |
@@ -374,24 +376,13 @@ Use `get_confidence(strat)` inside `strategy.py` to bias voting toward high‑pe
 | volatility_ladder_strategy           | 984.85  | 1003.75 | 1003.75 | 948.11  | 984.85  |
 | vwap                                 | 1000.00 | 1000.00 | 1000.00 | 1000.00 | 1000.00 |
 
-## 🛡️ Risk Controls
-
-- Config stop‑trading if balance < `MIN_BALANCE`
-- RL action=0 forces skip
-- Stake is min(balance × 1 %, `MAX_STAKE`)
-- Confidence threshold gates low‑prob trades
-
----
-
 ## 🤝 Contributing
 
 PRs welcome! Please:
 
-**I am particularly looking for help on the notifications with telegram and the docker logs showing:**
+**I am particularly looking for help on the notifications with telegram and the docker logs showing**
 
-1. Open issue describing change
-
----
+Apart from that, all suggestions are welcome.
 
 ## 📜 License
 
@@ -402,3 +393,24 @@ MIT – see [`LICENSE`](LICENSE.md).
 ## 💬 Contact
 
 Raise an issue, give a suggestion or ping me on [LinkedIn](https://www.linkedin.com/in/alexis-selorm/).
+
+# 🗣 Final Wise Words
+
+- "The market is a device for transferring money from the impatient to the patient." – Warren Buffett
+- "In trading and investing, it's not about how much you make but rather how much you don't lose." – Bernard Baruch
+- "The four most dangerous words in investing are: 'This time it's different.'" – Sir John Templeton
+- "Risk comes from not knowing what you're doing." – Warren Buffett
+
+### 🧠 From Me
+
+> _“This bot isn’t magic—it’s math, code, and a bit of stubborn curiosity. Whether it prints profits or teaches hard lessons, it’s mine. Fork it. Improve it. Or just watch it tick.”_
+
+### 🤖 From the Bot
+
+> _“I don’t sleep. I don’t panic. I don’t revenge trade. I process signals and act. If you feed me data and logic, I’ll do the rest. Let’s see if your edge is real.”_
+
+### ✨ Inspiration for the nerds like me
+
+> _“Built for the curious. Shared for the bold. Use this bot as a blueprint, a launchpad, or a challenge. Whatever you do—trade smarter.”_
+
+---

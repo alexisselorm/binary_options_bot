@@ -12,19 +12,23 @@
     "last_updated": "2025-06-15T02:42:34.270725"
   },
   "trend_follow": {
-    "confidence": 0.5082,
-    "last_updated": "2025-06-15T02:08:10.283848"
+    "confidence": 0.4066,
+    "last_updated": "2025-06-15T18:26:54.352978"
   },
   "heikin_ashi": {
     "confidence": 0.32,
     "last_updated": "2025-06-15T02:41:10.240785"
   },
   "psar": {
-    "confidence": 0.3482,
-    "last_updated": "2025-06-15T02:37:52.352470"
+    "confidence": 0.4786,
+    "last_updated": "2025-06-15T18:36:50.378690"
   },
   "breakout": {
-    "confidence": 0.381,
-    "last_updated": "2025-06-15T02:23:00.286149"
+    "confidence": 0.5464,
+    "last_updated": "2025-06-15T18:37:58.876656"
+  },
+  "atr_breakout": {
+    "confidence": 0.6,
+    "last_updated": "2025-06-15T18:28:02.511029"
   }
 }

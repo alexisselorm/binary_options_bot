@@ -9,6 +9,7 @@
 returns `(signal | None, stake | None, confidence | None)`
 """
 from __future__ import annotations
+from trading.tecnhical_analysis_strategies import *
 
 import os
 from typing import Optional, Tuple, List, Dict, Callable
@@ -16,10 +17,10 @@ from typing import Optional, Tuple, List, Dict, Callable
 import numpy as np
 import pandas as pd
 import pandas_ta as ta
-import xgboost as xgb
-from tensorflow.keras.models import load_model
+# import xgboost as xgb
+# from tensorflow.keras.models import load_model
 
-from reinforcements.agent import RLAgent
+# from reinforcements.agent import RLAgent
 from utils.config import Config
 # ════════════════════════════════════════════════════════════════
 # One‑time configuration / model loads
@@ -34,7 +35,6 @@ THRESH:  float = _cfg.signal_threshold
 # ════════════════════════════════════════════════════════════════
 
 # Import everything from technical_analysis_strategies
-from trading.tecnhical_analysis_strategies import *
 
 
 def collect_rule_signals(
@@ -101,6 +101,13 @@ def generate_signals(
     # ──────────────────────────────────────────────────────────
     # AI branch
     # ──────────────────────────────────────────────────────────
+    """
+    AI signal generation:
+      • LSTM predicts next close price
+      • XGBoost uses LSTM output + technical features to predict CALL/PUT
+      • RL agent (optional) adjusts stake size based on confidence
+    
+    JUST A SIDE NOTE: Predicting financial markets is extremely difficult. 😭
 
     # — LSTM —
     _lstm = load_model(_cfg.model_path_lstm)
@@ -152,3 +159,4 @@ def generate_signals(
     stake_usd = min(balance * max(stake_mult, 0.01), _cfg.max_stake)
     print(f"🧠 RL proceed stake={stake_usd:.2f} (mult={stake_mult:.2f})")
     return signal, stake_usd, confidence
+    """

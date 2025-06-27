@@ -69,9 +69,6 @@ binary_options_bot/
 ---
 
 ## ⚙️ Installation
-
-Here’s an updated **Installation** section that keeps the bare-metal (venv) route **and** adds a clean, copy-paste-ready **Docker-only** workflow—no docker-compose required.
-
 ````markdown
 ## ⚙️ Installation
 

@@ -69,6 +69,7 @@ binary_options_bot/
 ---
 
 ## ⚙️ Installation
+
 ````markdown
 ## ⚙️ Installation
 

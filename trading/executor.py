@@ -41,8 +41,7 @@ class TradeExecutor:
 
     async def run(self):
         granularity = self.cfg.timeframe * 60  # seconds
-        # expiry_sec = self.cfg.expiry * 60      # trade duration in seconds
-        expiry_sec = 60      # Temporary hardcoded value for testing
+        expiry_sec = 60  # Temporary hardcoded value for testing
 
         self.valid_durations = await self.api.fetch_trading_durations(self.cfg.asset)
         if expiry_sec not in self.valid_durations:
@@ -54,7 +53,7 @@ class TradeExecutor:
 
         while True:
             try:
-                candle_resp = await self.api.get_candles(self.cfg.asset, 2000, granularity)
+                candle_resp = await self.api.get_candles(self.cfg.asset, 200, granularity)
                 candles = candle_resp.get("candles")
                 if not candles:
                     print("⚠️ No candle data returned. Skipping this round.")
@@ -70,106 +69,89 @@ class TradeExecutor:
                     raise RuntimeError(
                         f"⚠️ Balance too low: {balance} < {self.cfg.min_balance}")
 
-                # use_ai = True if self.cfg.model_type != "rule" else False
-                # strategy_names = [
-                #     "sma_rsi",
-                #     "macd_cross",
-                #     "bollinger_bands",
-                #     "adx_trend",
-                #     "ichimoku_base_conversion",
-                #     "breakout",
-                #     "trend_follow",
-                # ]
+                if self.cfg.model_type != "rule":
+                    print("🤖 Running AI-based strategy (LLM)…")
+                    signal, stake, conf = generate_signals(
+                        df, balance, use_ai=True, strategy="sma_rsi")
+                    if not signal:
+                        print("🚫 No AI signal generated. Skipping.")
+                        await asyncio.sleep(granularity)
+                        continue
 
-                # stra = random.choice(strategy_names)
-                # signal, stake, conf = generate_signals(
-                #     df, balance, use_ai=use_ai, strategy=stra)
+                    stra = "llm"
+                    print(
+                        f"🧠 LLM signal={signal}  conf={conf:.2f}  stake={stake:.2f}")
 
-                # Step 1: Loop through all strategies and collect signals (no confidence)
-                votes = {}
-                stakes = {}
+                else:
+                    # RULE-BASED STRATEGY ENSEMBLE BLOCK
+                    votes = {}
+                    stakes = {}
 
-                print("🔍 Evaluating strategy signals for ensemble agreement...")
+                    print("🔍 Evaluating strategy signals for ensemble agreement…")
+                    import warnings
 
-                # Step 1: Collect signals and associated stakes
-                import warnings
+                    for strat in RULE_STRATEGY_NAMES:
+                        try:
+                            with warnings.catch_warnings():
+                                if strat == "_heikin_ashi":
+                                    warnings.simplefilter(
+                                        "ignore", category=FutureWarning)
+                                    warnings.simplefilter(
+                                        "ignore", category=UserWarning)
 
-                for strat in RULE_STRATEGY_NAMES:
-                    try:
-                        with warnings.catch_warnings():
-                            if strat == "_heikin_ashi":
-                                warnings.simplefilter(
-                                    "ignore", category=FutureWarning)
-                                warnings.simplefilter(
-                                    "ignore", category=UserWarning)
+                                sig, stk, _ = generate_signals(
+                                    df, balance, use_ai=False, strategy=strat
+                                )
+                        except Exception as e:
+                            print(f"💥 Strategy error [{strat}]: {e}")
+                            sig, stk = None, None
 
-                            sig, stk, _ = generate_signals(
-                                df, balance, use_ai=False, strategy=strat
-                            )
-                    except Exception as e:
-                        print(f"💥 Strategy error [{strat}]: {e}")
-                        sig, stk = None, None
+                        if sig is not None:
+                            print(
+                                f"✅ Strategy '{strat}' voted for: {sig} with stake ${stk:.2f}")
+                            votes.setdefault(sig, []).append(strat)
+                            stakes[strat] = stk
+                        else:
+                            print(
+                                f"❌ Strategy '{strat}' did not generate a signal.")
 
-                    if sig is not None:
+                    signal, strats_agreed = collect_rule_signals(
+                        df, balance, min_agree=4)
+
+                    if not signal:
                         print(
-                            f"✅ Strategy '{strat}' voted for: {sig} with stake ${stk:.2f}")
-                        votes.setdefault(sig, []).append(strat)
-                        stakes[strat] = stk
-                    else:
-                        print(
-                            f"❌ Strategy '{strat}' did not generate a signal.")
-                signal, strats_agreed = collect_rule_signals(
-                    df, balance, min_agree=4)
+                            "⚖️  No multi-strategy consensus. Waiting for next cycle.")
+                        await asyncio.sleep(granularity)
+                        continue
 
-                if not signal:          # still no agreement → skip cycle
-                    print("⚖️  No multi-strategy consensus. Waiting for next cycle.")
-                    await asyncio.sleep(granularity)
-                    continue
+                    print(
+                        f"🤝 Consensus direction = {signal}  from strategies: {strats_agreed}")
 
-                print(f"🤝 Consensus direction = {signal}  "
-                      f"from strategies: {strats_agreed}")
+                    stra = None
+                    best_conf = -1.0
+                    stake = None
 
-                # ----- NEW: choose the highest-confidence strategy among the agreers
-                stra = None
-                best_conf = -1.0
-                stake = None
+                    for s in strats_agreed.split(", "):
+                        current_conf = get_confidence(s)
+                        if current_conf > best_conf:
+                            _, stake_tmp, _ = generate_signals(
+                                df, balance, use_ai=False, strategy=s)
+                            stra = s
+                            best_conf = current_conf
+                            stake = stake_tmp
 
-                # e.g. "macd,bollinger"
-                for s in strats_agreed.split(", "):
-                    # ← live score from JSON
-                    current_conf = get_confidence(s)
-                    if current_conf > best_conf:
-                        # Re-compute stake for this specific strategy
-                        _, stake_tmp, _ = generate_signals(
-                            df, balance, use_ai=False, strategy=s
-                        )
-                        stra = s
-                        best_conf = current_conf
-                        stake = stake_tmp
-
-                print(
-                    f"🤝 Multi-strategy agreement → Signal: {signal}, Strategies: [{strats_agreed}], Strategy Used: {stra}, Stake: ${stake:.2f}"
-                )
-
-                if not signal:
-                    print("🚫No trade signal generated. Waiting for next cycle.")
-                    # wait longer for 3 minutes
-                    await asyncio.sleep(granularity)
-                    continue
-
-                # print(
-                #     f"📈 Strategy: {stra}.  Signal: {signal}. The signal is ")
+                    print(
+                        f"🤝 Multi-strategy agreement → Signal: {signal}, Strategies: [{strats_agreed}], Strategy Used: {stra}, Stake: ${stake:.2f}")
 
                 proposal_args = {
                     "proposal": 1,
                     "amount": stake,
-                    # "amount": self.cfg.stake,
                     "basis": "stake",
                     "contract_type": signal,
                     "currency": "USD",
                     "duration": expiry_sec,
                     "duration_unit": "s",
-                    "symbol": self.cfg.asset  # use configured asset
+                    "symbol": self.cfg.asset
                 }
 
                 buy_result = await self.execute_trade(proposal_args)
@@ -181,7 +163,6 @@ class TradeExecutor:
                 contract_id = buy_result["buy"]["contract_id"]
                 print(f"✅ Contract bought successfully | ID={contract_id}")
 
-                # Wait for trade to complete
                 finished = asyncio.Event()
 
                 def on_update(msg: Dict):
@@ -234,11 +215,8 @@ class TradeExecutor:
         print("❌ All trade execution attempts failed.")
         return None
 
-    def _on_contract_update(self, msg: Dict, signal: str, cid: str, stra,
-                            stake):
+    def _on_contract_update(self, msg: Dict, signal: str, cid: str, stra, stake):
         print(f"📩 Contract update received for ID={cid}")
-        # print("Full message:")
-        # print(msg)
 
         poc = msg.get("proposal_open_contract", {})
         if poc.get("is_sold"):
@@ -248,21 +226,11 @@ class TradeExecutor:
             sell_price = poc.get("sell_price")
             sell_time = poc.get("sell_time")
             status = poc.get("status")
-            # log *once* when closed
-            self._log_trade(cid=cid,
-                            strategy=stra,
-                            signal=signal,
-                            stake=stake,
-                            entry=poc.get("entry_tick"),
-                            exit_=poc.get("exit_tick"),
-                            profit=poc.get("profit"),
-                            status=poc.get("status"),
-                            )
+            self._log_trade(cid=cid, strategy=stra, signal=signal, stake=stake,
+                            entry=entry_price, exit_=exit_price,
+                            profit=profit, status=status)
 
-            record_result(
-                strategy_name=stra,
-                won=(profit > 0),
-            )
+            record_result(strategy_name=stra, won=(profit > 0))
 
             print(f"💰 Contract {cid} | Signal={signal}")
             print(f"🔹 Entry: {entry_price} | Exit: {exit_price}")
@@ -271,21 +239,12 @@ class TradeExecutor:
             print(f"🕒 Sell Time: {sell_time}")
             print("📉 Trade has been settled.")
 
-    def _log_trade(self, *, cid: str, strategy: str, signal: str, stake: float, entry: float, exit_: float, profit: float, status: str,):
-        """Append a single trade to CSV."""
+    def _log_trade(self, *, cid: str, strategy: str, signal: str, stake: float, entry: float, exit_: float, profit: float, status: str):
         with open(self.log_path, "a", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow(
-                [
-                    datetime.utcnow().isoformat(timespec="seconds"),
-                    cid,
-                    strategy,
-                    signal,
-                    f"{stake:.2f}",
-                    entry,
-                    exit_,
-                    profit,
-                    status,
-                ]
-            )
+            writer.writerow([
+                datetime.utcnow().isoformat(timespec="seconds"),
+                cid, strategy, signal,
+                f"{stake:.2f}", entry, exit_, profit, status
+            ])
         print(f"📝 Logged trade {cid} → {profit}")

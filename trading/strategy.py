@@ -17,6 +17,8 @@ from typing import Optional, Tuple, List, Dict, Callable
 import numpy as np
 import pandas as pd
 import pandas_ta as ta
+import json
+import requests
 # import xgboost as xgb
 # from tensorflow.keras.models import load_model
 
@@ -74,19 +76,20 @@ def generate_signals(
     df: pd.DataFrame,
     balance: float,
     *,
-    use_ai: bool = True,
+    use_ai: bool = False,
     strategy: str,
 ) -> Tuple[Optional[str], Optional[float], Optional[float]]:
     """Return (signal, stake, confidence).  If no trade → (None, None, None)"""
 
+    print(f"Use AI? {use_ai}")
     if not use_ai and strategy not in RULE_BASED_STRATEGIES:
         raise ValueError(
             f"Unknown strategy '{strategy}'. Choose from {RULE_STRATEGY_NAMES}")
 
     df = prepare_df_for_ta(df)
     df = add_indicators(df)
-    if len(df) < SEQ_LEN:
-        return None, None, None
+    # if len(df) < SEQ_LEN:
+    #     return None, None, None
 
     # ──────────────────────────────────────────────────────────
     # Rule‑based branch
@@ -98,10 +101,79 @@ def generate_signals(
         stake = min(balance * 0.01, _cfg.max_stake)
         return sig, stake, conf
 
+    print("Skipped everything, now using llm")
     # ──────────────────────────────────────────────────────────
+    # LLM-assisted AI branch
+    # ──────────────────────────────────────────────────────────
+    latest = df.tail(SEQ_LEN).copy()
+    latest = latest[["open", "high", "low", "close", "volume"]].round(4)
+    table_str = "\n".join(
+        ["Time | Open | High | Low | Close | Volume"] +
+        [
+            f"{i} | {row.open} | {row.high} | {row.low} | {row.close} | {row.volume}"
+            for i, row in latest.iterrows()
+        ]
+    )
+
+    print("Using Deepseek LLM🤖")
+
+    prompt = f"""
+        You are an expert financial assistant. Based on the following recent 1-minute candles for binary options on R_100, respond with:
+        - Trading Signal: CALL, PUT, or NONE
+        - Confidence (0–100%)
+        - Short reasoning (optional)
+
+        {table_str}
+    """
+
+    payload = {
+        "model": "deepseek/deepseek-r1-0528:free",
+        "messages": [
+            {"role": "user", "content": prompt.strip()}
+        ]
+    }
+
+    try:
+        response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {_cfg.llm_api_token}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://localhost.5534",
+                "X-Title": "BinaryOptionsBot"
+            },
+            data=json.dumps(payload),
+            timeout=15
+        )
+        res_json = response.json()
+        content = res_json["choices"][0]["message"]["content"].lower()
+        print(f"Content 📖: {content}")
+        if "call" in content:
+            signal = "CALL"
+        elif "put" in content:
+            signal = "PUT"
+        else:
+            return None, None, None
+
+        import re
+        conf_match = re.search(r"(\d{1,3}(\.\d+)?)%", content)
+        confidence = float(conf_match.group(1)) if conf_match else 50.0
+
+        if confidence < THRESH:
+            print(f"❌ LLM Conf {confidence:.2f} < {THRESH}. Skip")
+            return None, None, None
+
+        stake = min(balance * 0.01, _cfg.max_stake)
+        return signal, stake, confidence
+
+    except Exception as e:
+        print(f"❌ LLM error: {e}")
+        return None, None, None
+
+ # ──────────────────────────────────────────────────────────
     # AI branch
     # ──────────────────────────────────────────────────────────
-    """
+    ai = """
     AI signal generation:
       • LSTM predicts next close price
       • XGBoost uses LSTM output + technical features to predict CALL/PUT

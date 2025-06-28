@@ -27,6 +27,7 @@ class Config:
         # 🔐 Credentials & Trading Setup
         self.app_id: str = self._req("APP_ID")
         self.api_token: str = self._req("API_TOKEN")
+        self.llm_api_token: str = self._req("LLM_API_TOKEN")
         self.asset: str = self._req("ASSET")
         self.expiry: int = int(self._req("EXPIRY"))
         self.stake: float = float(self._req("STAKE"))

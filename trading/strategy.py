@@ -12,13 +12,19 @@ from __future__ import annotations
 from trading.tecnhical_analysis_strategies import *
 
 import os
+import json
+import requests
 from typing import Optional, Tuple, List, Dict, Callable
 
 import numpy as np
 import pandas as pd
 import pandas_ta as ta
-import json
-import requests
+import mplfinance as mpf
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
+import re
+
 # import xgboost as xgb
 # from tensorflow.keras.models import load_model
 
@@ -88,8 +94,10 @@ def generate_signals(
 
     df = prepare_df_for_ta(df)
     df = add_indicators(df)
-    # if len(df) < SEQ_LEN:
-    #     return None, None, None
+    if len(df) < SEQ_LEN:
+        print(f"Len of df: {len(df)}")
+        print(f"Len of SEQ: {SEQ_LEN}")
+        return None, None, None
 
     # ──────────────────────────────────────────────────────────
     # Rule‑based branch
@@ -106,30 +114,42 @@ def generate_signals(
     # LLM-assisted AI branch
     # ──────────────────────────────────────────────────────────
     latest = df.tail(SEQ_LEN).copy()
-    latest = latest[["open", "high", "low", "close", "volume"]].round(4)
-    table_str = "\n".join(
-        ["Time | Open | High | Low | Close | Volume"] +
-        [
-            f"{i} | {row.open} | {row.high} | {row.low} | {row.close} | {row.volume}"
-            for i, row in latest.iterrows()
-        ]
+    latest.index = pd.to_datetime(latest['epoch'], unit='s')
+    latest = latest.rename(columns={
+        "open": "Open", "high": "High",
+        "low": "Low", "close": "Close",
+        "volume": "Volume"
+    })
+
+    # Plot to buffer
+    img_buf = BytesIO()
+    mpf.plot(
+        latest,
+        type='candle',
+        style='charles',
+        volume=True,
+        mav=(3, 6),
+        show_nontrading=True,
+        savefig=dict(fname=img_buf, dpi=150, bbox_inches='tight')
     )
-
-    print("Using Deepseek LLM🤖")
-
-    prompt = f"""
-        You are an expert financial assistant. Based on the following recent 1-minute candles for binary options on R_100, respond with:
-        - Trading Signal: CALL, PUT, or NONE
-        - Confidence (0–100%)
-        - Short reasoning (optional)
-
-        {table_str}
-    """
-
+    img_buf.seek(0)
+    img_b64 = base64.b64encode(img_buf.read()).decode("utf-8")
+    # Save plot to disk for later review
+    plot_dir = os.path.join(os.path.dirname(__file__), "..", "plots")
+    os.makedirs(plot_dir, exist_ok=True)
+    plot_path = os.path.join(
+        plot_dir, f"chart_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.png")
+    with open(plot_path, "wb") as f:
+        f.write(base64.b64decode(img_b64))
+    print(f"Plot saved to {plot_path}")
     payload = {
         "model": "deepseek/deepseek-r1-0528:free",
         "messages": [
-            {"role": "user", "content": prompt.strip()}
+            {
+                "role": "user",
+                "content": "This is a 1-minute candlestick chart for R_100. Based on this chart, provide:\n- Trading Signal: CALL, PUT, or NONE\n- Confidence (0–100%)\n- Reasoning (short).",
+                "images": [img_b64]
+            }
         ]
     }
 

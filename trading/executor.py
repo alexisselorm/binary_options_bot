@@ -53,7 +53,7 @@ class TradeExecutor:
 
         while True:
             try:
-                candle_resp = await self.api.get_candles(self.cfg.asset, 200, granularity)
+                candle_resp = await self.api.get_candles(self.cfg.asset, 2000, granularity)
                 candles = candle_resp.get("candles")
                 if not candles:
                     print("⚠️ No candle data returned. Skipping this round.")

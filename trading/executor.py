@@ -1,5 +1,6 @@
 import logging
 import asyncio
+import time
 import pandas as pd
 from typing import Dict, Optional
 from trading.strategy import collect_rule_signals, generate_signals, RULE_STRATEGY_NAMES
@@ -19,6 +20,9 @@ class TradeExecutor:
         self.api = api
         self.cfg = cfg
         self.valid_durations = []
+        self.consecutive_losses = 0
+        self.martingale_multiplier = 2.0
+        self.wait_on_loss = False
 
         # ── log file setup ──────────────────────────────── #
         self.log_path = getattr(
@@ -72,7 +76,7 @@ class TradeExecutor:
                 if self.cfg.model_type != "rule":
                     print("🤖 Running AI-based strategy (LLM)…")
                     signal, stake, conf = generate_signals(
-                        df, balance, use_ai=True, strategy="sma_rsi")
+                        df, balance, use_ai=True, strategy=None)
                     if not signal:
                         print("🚫 No AI signal generated. Skipping.")
                         await asyncio.sleep(granularity)
@@ -121,9 +125,8 @@ class TradeExecutor:
                     if not signal:
                         print(
                             "⚖️  No multi-strategy consensus. Waiting for next cycle.")
-                        await asyncio.sleep(granularity)
+                        await asyncio.sleep(granularity*3)
                         continue
-
                     print(
                         f"🤝 Consensus direction = {signal}  from strategies: {strats_agreed}")
 
@@ -142,6 +145,37 @@ class TradeExecutor:
 
                     print(
                         f"🤝 Multi-strategy agreement → Signal: {signal}, Strategies: [{strats_agreed}], Strategy Used: {stra}, Stake: ${stake:.2f}")
+
+                    strategies_list = strats_agreed.split(", ")
+                    strats_confidence = [get_confidence(
+                        strategy) for strategy in strategies_list]
+                    conf_average = sum(strats_confidence) / \
+                        len(strats_confidence)
+                    print(
+                        f"Averagely strategies, [{strats_agreed}] are: {conf_average}% confident")
+
+                    if conf_average < self.cfg.signal_threshold:
+                        print("Not confident enough, skipping this trade")
+                        print(
+                            f"Confidence Average: {conf_average}, Threshold:{self.cfg.signal_threshold}")
+                        await asyncio.sleep(granularity*3)
+                        continue
+
+                    base_stake = stake
+                    if self.cfg.martingale_mode == "on" and self.cfg.max_consecutive_losses > self.consecutive_losses:
+                        # Cap at 3 steps
+                        steps = min(self.consecutive_losses, 2)
+                        stake_multiplier = self.martingale_multiplier ** steps
+                        adjusted_stake = base_stake * stake_multiplier
+
+                        # Ensure stake doesn't exceed 95% of balance
+                        max_stake = balance * 0.95
+                        stake = min(adjusted_stake, max_stake)
+
+                        print(
+                            f"♠️ Martingale activated (step={steps}, multiplier={stake_multiplier:.2f})")
+                        print(
+                            f"   Base stake: ${base_stake:.2f} → Adjusted stake: ${stake:.2f}")
 
                 proposal_args = {
                     "proposal": 1,
@@ -167,7 +201,7 @@ class TradeExecutor:
 
                 def on_update(msg: Dict):
                     self._on_contract_update(
-                        msg, signal, contract_id, stra, stake)
+                        msg, signal, contract_id, strategies_list, stake)
                     poc = msg.get("proposal_open_contract", {})
                     if poc.get("is_sold"):
                         finished.set()
@@ -182,6 +216,10 @@ class TradeExecutor:
                 print("⏳ Waiting for trade to settle...")
                 await finished.wait()
                 print("✅ Trade settled. Resuming...")
+                if self.wait_on_loss:
+                    print("⏳ Waiting for 5 minutes cooldown after loss...")
+                    await asyncio.sleep(300)
+                    self.wait_on_loss = False
 
             except Exception as e:
                 print(f"💥 Unhandled error: {e}")
@@ -215,29 +253,46 @@ class TradeExecutor:
         print("❌ All trade execution attempts failed.")
         return None
 
-    def _on_contract_update(self, msg: Dict, signal: str, cid: str, stra, stake):
+    def _on_contract_update(self, msg: Dict, signal: str, cid: str, strategies_list, stake):
         print(f"📩 Contract update received for ID={cid}")
 
         poc = msg.get("proposal_open_contract", {})
         if poc.get("is_sold"):
             profit = poc.get("profit")
+            if profit <= 0:
+                self.consecutive_losses += 1
+
+            else:
+                self.consecutive_losses = 0
             entry_price = poc.get("entry_tick")
             exit_price = poc.get("exit_tick")
             sell_price = poc.get("sell_price")
             sell_time = poc.get("sell_time")
             status = poc.get("status")
-            self._log_trade(cid=cid, strategy=stra, signal=signal, stake=stake,
+            self._log_trade(cid=cid, strategy=strategies_list, signal=signal, stake=stake,
                             entry=entry_price, exit_=exit_price,
                             profit=profit, status=status)
 
-            record_result(strategy_name=stra, won=(profit > 0))
+            record_result(strategy_names=strategies_list, won=(profit > 0))
 
             print(f"💰 Contract {cid} | Signal={signal}")
             print(f"🔹 Entry: {entry_price} | Exit: {exit_price}")
+            martingale_log = ''
+            if self.cfg.martingale_mode == 'on':
+                martingale_log += f"Martingale {'won' if profit > 0 else 'lost'} at step {self.consecutive_losses} |"
+
             print(
-                f"🔸 Sold for: {sell_price} | Status: {status} | Profit/Loss: {profit}")
+                f"🔸 Sold for: {sell_price} | Status: {status} | Profit/Loss: {profit} | {martingale_log}")
             print(f"🕒 Sell Time: {sell_time}")
             print("📉 Trade has been settled.")
+
+            # Wait for 5 minutes
+            if profit < 0:
+                print(
+                    "🔻 Trade resulted in a loss. Will wait for 5 minutes before next trade.")
+                self.wait_on_loss = True
+            else:
+                self.wait_on_loss = False
 
     def _log_trade(self, *, cid: str, strategy: str, signal: str, stake: float, entry: float, exit_: float, profit: float, status: str):
         with open(self.log_path, "a", newline="") as f:

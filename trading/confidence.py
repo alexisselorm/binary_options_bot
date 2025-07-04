@@ -6,7 +6,7 @@ from datetime import datetime
 
 CONF_PATH = "data/strategy_confidence.json"
 DEFAULT_CONFIDENCE = 0.5
-DECAY = 0.8  # You can tune this globally or per strategy
+DECAY = 0.5  # You can tune this globally or per strategy
 
 _conf_data = {}
 
@@ -31,20 +31,22 @@ def get_confidence(strategy_name: str) -> float:
     return entry.get("confidence", DEFAULT_CONFIDENCE)
 
 
-def record_result(strategy_name: str, won: bool, decay: float = DECAY):
+def record_result(strategy_names: list, won: bool, decay: float = DECAY):
     _load_conf()
-    old_entry = _conf_data.get(strategy_name, {})
-    old_conf = old_entry.get("confidence", DEFAULT_CONFIDENCE)
 
-    result = 1.0 if won else 0.0
-    new_conf = round(old_conf * decay + result * (1 - decay), 4)
+    for stra in strategy_names:
+        old_entry = _conf_data.get(stra, {})
+        old_conf = old_entry.get("confidence", DEFAULT_CONFIDENCE)
 
-    _conf_data[strategy_name] = {
-        "confidence": new_conf,
-        "last_updated": datetime.utcnow().isoformat()
-    }
+        result = 1.0 if won else 0.0
+        new_conf = round(old_conf * decay + result * (1 - decay), 4)
 
-    _save_conf()
+        _conf_data[stra] = {
+            "confidence": new_conf,
+            "last_updated": datetime.utcnow().isoformat()
+        }
+
+        _save_conf()
 
 
 def reset_confidence(strategy_name: str = None):

@@ -155,3 +155,61 @@
 2025-06-15T21:38:02,284925740608,breakout,PUT,41.17,1058.19,1059.49,-41,lost
 2025-06-29T22:37:06,286351539888,llm,PUT,37.10,1242.64,1241.16,31.23,won
 2025-06-29T22:46:54,286352012288,llm,PUT,37.41,1237.59,1239.66,-37,lost
+2025-06-29T22:56:36,286352498668,llm,PUT,37.04,1242.66,1245.56,-37,lost
+2025-06-29T22:59:18,286352630428,llm,PUT,36.67,1242.68,1242.72,-36,lost
+2025-07-03T22:19:48,286758170208,psar,CALL,36.20,1332.56,1330.85,-36,lost
+2025-07-03T22:20:58,286758240588,psar,CALL,35.84,1330.34,1327.31,-35,lost
+2025-07-03T22:30:52,286758822828,psar,CALL,35.49,1326.68,1327.5,29.61,won
+2025-07-03T22:42:18,286759481588,psar,CALL,35.43,109176.731,109083.2936,-35,lost
+2025-07-03T22:45:08,286759646868,"macd_cross, adx_trend, ichimoku_base_conversion, trend_follow, heikin_ashi, psar, bollinger_breakout",CALL,35.08,109015.1041,108826.8977,-35,lost
+2025-07-03T22:54:54,286760265248,"macd_cross, adx_trend, ichimoku_base_conversion, breakout, trend_follow, heikin_ashi, atr_breakout, psar",CALL,34.73,109050.3555,109101.9829,28.75,won
+2025-07-03T23:03:00,286760764388,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi', 'psar']",CALL,34.67,108557.7884,108596.063,28.75,won
+2025-07-03T23:04:08,286760831688,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi', 'psar']",CALL,34.96,108585.3969,108351.334,-34,lost
+2025-07-03T23:05:16,286760896028,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'psar']",CALL,34.62,108358.0775,108392.681,28.75,won
+2025-07-03T23:06:26,286760960448,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'psar']",CALL,34.90,108339.6291,108387.8862,28.75,won
+2025-07-03T23:07:36,286761020588,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'psar']",CALL,35.19,108422.75,108411.3148,-35,lost
+2025-07-03T23:08:46,286761082688,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi', 'psar']",CALL,34.84,108414.2399,108570.1992,28.75,won
+2025-07-03T23:09:56,286761141268,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'psar']",CALL,35.13,108585.8019,108679.7455,29.6,won
+2025-07-03T23:11:04,286761204308,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'psar']",CALL,35.42,108671.0007,108613.0574,-35,lost
+2025-07-03T23:14:20,286761381068,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'heikin_ashi']",PUT,35.07,108436.3657,108459.3682,-35,lost
+2025-07-03T23:15:28,286761435748,"['macd_cross', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,34.72,108412.32,108305.1878,28.71,won
+2025-07-03T23:16:36,286761493168,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,35.01,108273.5841,108338.9219,-35,lost
+2025-07-03T23:23:50,286761900628,"['macd_cross', 'ichimoku_base_conversion', 'heikin_ashi', 'ema_cross_adx']",PUT,34.66,108303.4485,108215.3036,28.71,won
+2025-07-03T23:28:10,286762132308,"['macd_cross', 'ichimoku_base_conversion', 'breakout', 'heikin_ashi', 'atr_breakout', 'ema_cross_adx', 'bollinger_breakout']",PUT,34.95,108228.4526,108304.5701,-34,lost
+2025-07-03T23:29:18,286762188908,"['macd_cross', 'ichimoku_base_conversion', 'heikin_ashi', 'bollinger_breakout']",PUT,34.61,108341.9184,108317.2126,28.71,won
+2025-07-03T23:30:28,286762249228,"['macd_cross', 'ichimoku_base_conversion', 'breakout', 'heikin_ashi', 'bollinger_breakout']",PUT,34.90,108299.1189,108270.839,28.71,won
+2025-07-03T23:31:36,286762308548,"['macd_cross', 'ichimoku_base_conversion', 'breakout', 'heikin_ashi', 'bollinger_breakout']",PUT,35.18,108260.7178,108222.5038,29.55,won
+2025-07-03T23:32:44,286762373208,"['macd_cross', 'ichimoku_base_conversion', 'heikin_ashi', 'bollinger_breakout']",PUT,35.48,108275.608,108347.2934,-35,lost
+2025-07-03T23:41:00,286762804508,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,35.13,6268.788,6267.839,29.57,won
+2025-07-03T23:42:08,286762863868,"['sma_rsi', 'bollinger_bands', 'stoch_rsi', 'stoch_rsi_reversal']",CALL,35.42,6267.72,6268.407,29.58,won
+2025-07-03T23:43:14,286762926728,"['sma_rsi', 'bollinger_bands', 'stoch_rsi', 'stoch_rsi_reversal']",CALL,35.72,6268.189,6268.55,29.58,won
+2025-07-03T23:44:22,286762999668,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,36.02,6268.169,6267.303,30.42,won
+2025-07-03T23:45:28,286763060368,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,36.32,6267.555,6267.035,30.42,won
+2025-07-03T23:46:36,286763118868,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,36.62,6267.4,6267.241,30.42,won
+2025-07-03T23:47:42,286763181288,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,36.93,6267.398,6267.587,-36,lost
+2025-07-03T23:48:50,286763244368,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow']",PUT,36.57,6267.93,6268.464,-36,lost
+2025-07-04T00:15:08,286764624368,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'breakout', 'trend_follow', 'heikin_ashi', 'psar']",CALL,1.00,109376.3383,109499.7715,0.85,won
+2025-07-04T00:16:14,286764682768,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi', 'psar']",CALL,1.00,109456.1789,109432.5915,-1,lost
+2025-07-04T00:17:32,286764746428,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'psar']",CALL,1.00,109383.4223,109297.9211,-1,lost
+2025-07-04T00:20:46,286764914028,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow']",CALL,2.00,109087.4783,108994.7333,-2,lost
+2025-07-04T00:26:06,286765185048,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi', 'psar']",CALL,4.00,109210.6639,109245.4366,3.38,won
+2025-07-04T00:27:14,286765236848,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi', 'psar']",CALL,1.00,109178.3103,109259.5391,0.85,won
+2025-07-04T00:28:20,286765289608,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'psar', 'ema_cross_adx']",CALL,1.00,109266.3216,109279.4046,0.85,won
+2025-07-04T00:29:26,286765339968,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi', 'psar']",CALL,1.00,109312.0485,109388.1961,0.85,won
+2025-07-04T00:30:32,286765392668,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'psar']",CALL,1.00,109397.5415,109358.8043,-1,lost
+2025-07-04T00:31:38,286765448368,"['adx_trend', 'ichimoku_base_conversion', 'breakout', 'trend_follow', 'heikin_ashi', 'psar', 'ema_cross_adx', 'bollinger_breakout']",CALL,2.00,109311.7209,109178.005,-2,lost
+2025-07-04T00:32:44,286765500328,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi', 'psar']",CALL,4.00,109166.0718,109353.7293,3.38,won
+2025-07-04T00:33:50,286765553408,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'psar']",CALL,1.00,109447.9853,109493.5722,0.85,won
+2025-07-04T00:46:24,286766122868,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,1.00,135.1852,135.1105,0.84,won
+2025-07-04T00:47:32,286766171988,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow']",PUT,1.00,135.0587,134.8674,0.84,won
+2025-07-04T00:48:40,286766223288,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,1.00,134.7942,134.8279,-1,lost
+2025-07-04T00:49:48,286766276428,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,2.00,134.8242,134.8271,-2,lost
+2025-07-04T00:50:56,286766328288,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'breakout', 'trend_follow', 'heikin_ashi']",PUT,4.00,134.8395,134.7934,3.38,won
+2025-07-04T00:52:04,286766382528,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,1.00,134.7946,134.8845,-1,lost
+2025-07-04T00:53:12,286766438628,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'breakout', 'trend_follow', 'heikin_ashi', 'bollinger_breakout']",PUT,2.00,134.836,134.9835,-2,lost
+2025-07-04T02:17:26,286770151168,"['macd_cross', 'heikin_ashi', 'atr_breakout', 'ema_cross_adx']",CALL,1.00,133.3603,133.3487,-1,lost
+2025-07-04T08:58:48,286792654948,"['adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'ema_cross_adx']",CALL,1.00,6260.953,6259.929,-1,lost
+2025-07-04T09:11:02,286793647128,"['macd_cross', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi', 'ema_cross_adx']",PUT,2.00,6256.946,6256.902,1.69,won
+2025-07-04T09:12:10,286793747768,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'breakout', 'trend_follow', 'heikin_ashi', 'atr_breakout', 'bollinger_breakout', 'multi_confirm']",PUT,1.00,6257.292,6258.461,-1,lost
+2025-07-04T09:24:24,286794706428,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'trend_follow', 'heikin_ashi']",PUT,2.00,6260.221,6260.751,-2,lost
+2025-07-04T09:33:34,286795500508,"['macd_cross', 'adx_trend', 'ichimoku_base_conversion', 'breakout', 'trend_follow', 'heikin_ashi', 'atr_breakout']",PUT,4.00,6260.875,6261.195,-4,lost

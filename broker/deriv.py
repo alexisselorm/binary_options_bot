@@ -65,7 +65,7 @@ class DerivAPIWrapper:
 
         valid = sorted(set(valid_secs))
         logger.info(f"✔ Valid durations (sec) for {asset}: {valid}")
-        print(f"Valid durations (sec) for {asset}: {valid[0]}")
+        # print(f"Valid durations (sec) for {asset}: {valid[0]}")
         return valid
 
     async def get_candles(self, symbol: str, count: int, granularity: int) -> Dict[str, Any]:

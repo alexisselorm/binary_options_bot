@@ -87,7 +87,6 @@ def generate_signals(
 ) -> Tuple[Optional[str], Optional[float], Optional[float]]:
     """Return (signal, stake, confidence).  If no trade → (None, None, None)"""
 
-    print(f"Use AI? {use_ai}")
     if not use_ai and strategy not in RULE_BASED_STRATEGIES:
         raise ValueError(
             f"Unknown strategy '{strategy}'. Choose from {RULE_STRATEGY_NAMES}")
@@ -107,6 +106,8 @@ def generate_signals(
         if sig is None:
             return None, None, None
         stake = min(balance * 0.01, _cfg.max_stake)
+        if stake < 1:
+            stake = 1
         return sig, stake, conf
 
     print("Skipped everything, now using llm")

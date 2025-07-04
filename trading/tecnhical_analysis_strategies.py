@@ -63,103 +63,6 @@ def stoch_rsi_reversal(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]
     return None, None
 
 
-def doom_volatility_contraction(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
-    """
-    Source: Binary Options – Alex Nekritin (Chapter 8, p. 108–116)
-    Rule: Narrowing bands + price near key level → Buy DOOM option
-    Timeframe: Daily
-    """
-    df = df.copy()
-    df.ta.bbands(length=20, std=2, append=True)
-    df.ta.atr(length=14, append=True)
-
-    if len(df) < 2:
-        return None, None
-
-    band_width = df["BBU_20_2.0"] - df["BBL_20_2.0"]
-    is_narrowing = band_width.pct_change().iloc[-1] < 0
-    close = df["close"].iloc[-1]
-    support = df["low"].rolling(20).min().iloc[-1]
-    resistance = df["high"].rolling(20).max().iloc[-1]
-
-    if not is_narrowing:
-        return None, None
-
-    if close < support:
-        return "CALL", 0.01  # Stake 1%
-    elif close > resistance:
-        return "PUT", 0.01
-
-    return None, None
-
-
-def volatility_ladder_strategy(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
-    """
-    Source: Binary Options – Alex Nekritin + Trading Binary Options – Abe Cofnas
-    Rule: BB contraction + price near S/R → ladder multiple entries
-    """
-    df = df.copy()
-    df.ta.bbands(length=20, std=2, append=True)
-    df.ta.atr(length=14, append=True)
-
-    if len(df) < 2:
-        return None, None
-
-    band_width = df["BBU_20_2.0"] - df["BBL_20_2.0"]
-    is_narrowing = band_width.pct_change().iloc[-1] < 0
-    close = df["close"].iloc[-1]
-    support = df["low"].rolling(20).min().iloc[-1]
-    resistance = df["high"].rolling(20).max().iloc[-1]
-
-    if not is_narrowing:
-        return None, None
-
-    if close <= support:
-        return "CALL", 0.02  # Max 2% total
-    elif close >= resistance:
-        return "PUT", 0.02
-
-    return None, None
-
-
-def sentiment_volatility_stochastic_fade(
-    df: pd.DataFrame,
-    sentiment_signal: str = "neutral"
-) -> Tuple[Optional[str], Optional[float]]:
-    """
-    Source: Trading Binary Options – Abe Cofnas + Binary Options – Alex Nekritin
-    Rule: Fade oversold/overbought with sentiment confirmation
-    """
-    df = df.copy()
-    df.ta.rsi(length=14, append=True)
-    df.ta.stoch(length=14, append=True)
-    df.ta.bbands(length=20, std=2, append=True)
-
-    if len(df) < 2:
-        return None, None
-
-    stoch_k = df["STOCHk_14_3_3"].iloc[-1]
-    rsi = df["RSI_14"].iloc[-1]
-
-    band_width = df["BBU_20_2.0"] - df["BBL_20_2.0"]
-    is_contracting = band_width.pct_change().iloc[-1] < 0
-
-    if not is_contracting:
-        return None, None
-
-    if stoch_k < 20 and rsi < 30:
-        if sentiment_signal == "bearish":
-            return None, None
-        return "CALL", 0.015  # Stake 1.5%
-
-    elif stoch_k > 80 and rsi > 70:
-        if sentiment_signal == "bullish":
-            return None, None
-        return "PUT", 0.015
-
-    return None, None
-
-
 WARNING_SUPPRESSED_STRATEGIES = {
     "_heikin_ashi",
     "_vwap",
@@ -468,51 +371,37 @@ def psar(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
 
 
 @safe_strategy
-def vwap(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
+def ema_cross_adx(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
     df = df.copy()
-    df.index = pd.to_datetime(df["epoch"], unit="s")
-    df = df.sort_index()
-    df.ta.vwap(append=True)
-    if "VWAP_D" not in df.columns:
+    if len(df) < 50:
         return None, None
 
-    vwap_val = df["VWAP_D"].iloc[-1] if "VWAP_D" in df.columns else np.nan
-    close = df["close"].iloc[-1]
+    df.ta.ema(length=8, append=True)
+    df["open_ema_8"] = df["open"].ewm(span=8, adjust=False).mean()
 
-    if not np.isnan(vwap_val):
-        if close > vwap_val:
-            return "CALL", get_confidence("_vwap")
-        elif close < vwap_val:
-            return "PUT", get_confidence("_vwap")
-    return None, None
+    # ADX Filter
+    adx_len = 14
+    adx_thresh = 13
+    df.ta.adx(length=adx_len, append=True)
+    adx = df["ADX_" + str(adx_len)]
 
+    if "EMA_8" not in df.columns or "open_ema_8" not in df.columns or adx.isna().iloc[-1]:
+        return None, None
 
-@safe_strategy
-def ema_ribbon(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
-    emas = [f"EMA_{i}" for i in [8, 13, 21, 34, 55]]
-    for e in emas:
-        if e not in df.columns:
-            return None, None
+    close_now = df["EMA_8"].iloc[-1]
+    close_prev = df["EMA_8"].iloc[-2]
+    open_now = df["open_ema_8"].iloc[-1]
+    open_prev = df["open_ema_8"].iloc[-2]
+    adx_val = adx.iloc[-1]
 
-    vals = df[emas].iloc[-1].values
-    if all(vals[i] > vals[i+1] for i in range(len(vals)-1)):  # EMA descending → downtrend
-        if df["close"].iloc[-1] < vals[-1]:  # Price below slowest EMA
-            return "CALL", get_confidence("_ema_ribbon")
-    elif all(vals[i] < vals[i+1] for i in range(len(vals)-1)):  # EMA ascending → uptrend
-        if df["close"].iloc[-1] > vals[-1]:
-            return "PUT", get_confidence("_ema_ribbon")
-    return None, None
+    if adx_val < adx_thresh:
+        return None, None  # Skip if ADX is weak
 
+    if close_prev < open_prev and close_now > open_now:
+        return "CALL", get_confidence("_ema_cross_adx")
+    elif close_prev > open_prev and close_now < open_now:
+        return "PUT", get_confidence("_ema_cross_adx")
 
-@safe_strategy
-def vol_spike(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
-    vol_avg = df["volume"].rolling(20).mean().iloc[-2]
-    vol_curr = df["volume"].iloc[-1]
-    if vol_curr > 2 * vol_avg:
-        if df["close"].iloc[-1] > df["open"].iloc[-1]:
-            return "CALL", get_confidence("_vol_spike")
-        else:
-            return "PUT", get_confidence("_vol_spike")
     return None, None
 
 
@@ -535,16 +424,101 @@ def golden_death_cross(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]
 
 
 @safe_strategy
-def price_channel(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
-    lookback = 20
-    df["channel_high"] = df["high"].rolling(lookback).max()
-    df["channel_low"] = df["low"].rolling(lookback).min()
+def harmonic_rsi_divergence(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
+    if len(df) < 20:
+        return None, None
 
-    last = df.iloc[-1]
-    if last["close"] > last["channel_high"]:
-        return "CALL", get_confidence("_price_channel")
-    if last["close"] < last["channel_low"]:
-        return "PUT", get_confidence("_price_channel")
+    df = df.copy()
+    df.index = pd.to_datetime(df["epoch"], unit="s")
+    df = df.sort_index()
+
+    # VWAP
+    df.ta.vwap(append=True)
+    if "VWAP_D" not in df.columns:
+        return None, None
+    vwap = df["VWAP_D"]
+
+    # RSI
+    df["rsi"] = ta.rsi(df["close"], length=14)
+
+    # Set harmonic zones manually (based on visual inspection or backtest)
+    bear_zone_top = 312.30
+    bear_zone_bottom = 311.70
+    bull_zone_top = 311.70
+    bull_zone_bottom = 311.00
+
+    close_now = df["close"].iloc[-1]
+    close_5 = df["close"].iloc[-6]
+    close_10 = df["close"].iloc[-11]
+    rsi_5 = df["rsi"].iloc[-6]
+    rsi_10 = df["rsi"].iloc[-11]
+    vwap_now = vwap.iloc[-1]
+
+    near_vwap = abs(close_now - vwap_now) / vwap_now < 0.003
+    in_bear_zone = bear_zone_bottom <= close_now <= bear_zone_top
+    in_bull_zone = bull_zone_bottom <= close_now <= bull_zone_top
+
+    bear_div = close_5 > close_10 and rsi_5 < rsi_10
+    bull_div = close_5 < close_10 and rsi_5 > rsi_10
+
+    if in_bear_zone and near_vwap and bear_div:
+        return "PUT", get_confidence("_harmonic_rsi_divergence")
+
+    if in_bull_zone and near_vwap and bull_div:
+        return "CALL", get_confidence("_harmonic_rsi_divergence")
+
+    return None, None
+
+
+@safe_strategy
+def multi_confirm(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
+    df = df.copy()
+    df.index = pd.to_datetime(df["epoch"], unit="s")
+    df = df.sort_index()
+
+    df.ta.rsi(length=14, append=True)
+    df.ta.ema(length=50, append=True)
+    df.ta.macd(append=True)
+    df.ta.vwap(append=True)
+
+    if len(df) < 2 or "RSI_14" not in df.columns or "EMA_50" not in df.columns:
+        return None, None
+
+    # Extract recent data
+    rsi = df["RSI_14"].iloc[-1]
+    close = df["close"].iloc[-1]
+    open_ = df["open"].iloc[-1]
+    ema50 = df["EMA_50"].iloc[-1]
+    macd_line = df["MACD_12_26_9"].iloc[-1]
+    macd_signal = df["MACDs_12_26_9"].iloc[-1]
+    vwap = df["VWAP_D"].iloc[-1] if "VWAP_D" in df.columns else np.nan
+
+    # Bullish conditions
+    bull_checks = [
+        rsi < 30,
+        # crossed above EMA
+        df["close"].iloc[-2] < df["EMA_50"].iloc[-2] and close > ema50,
+        macd_line > macd_signal,
+        close > open_,  # bullish candle
+        close > vwap,
+    ]
+    bull_score = sum(bull_checks)
+
+    # Bearish conditions (reverse logic)
+    bear_checks = [
+        rsi > 70,
+        # crossed below EMA
+        df["close"].iloc[-2] > df["EMA_50"].iloc[-2] and close < ema50,
+        macd_line < macd_signal,
+        close < open_,
+        close < vwap,
+    ]
+    bear_score = sum(bear_checks)
+
+    if bull_score >= 3:
+        return "CALL", get_confidence("_multi_confirm")
+    elif bear_score >= 3:
+        return "PUT", get_confidence("_multi_confirm")
     return None, None
 
 
@@ -562,16 +536,12 @@ RULE_BASED_STRATEGIES: Dict[str, RuleFn] = {
     "candle_reversal": candle_reversal,
     "atr_breakout": atr_breakout,
     "psar": psar,
-    "vwap": vwap,
-    "ema_ribbon": ema_ribbon,
-    "vol_spike": vol_spike,
+    "ema_cross_adx": ema_cross_adx,
     "golden_death_cross": golden_death_cross,
-    "price_channel": price_channel,
+    "harmonic_rsi_divergence": harmonic_rsi_divergence,
     "bollinger_breakout": bollinger_breakout,
     "stoch_rsi_reversal": stoch_rsi_reversal,
-    "doom_volatility_contraction": doom_volatility_contraction,
-    "volatility_ladder_strategy": volatility_ladder_strategy,
-    "sentiment_volatility_stochastic_fade": sentiment_volatility_stochastic_fade
+    "multi_confirm": multi_confirm
 }
 
 

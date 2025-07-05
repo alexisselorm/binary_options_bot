@@ -1,66 +1,66 @@
 {
   "macd_cross": {
-    "confidence": 0.2344,
-    "last_updated": "2025-07-04T09:33:34.528206"
+    "confidence": 0.1184,
+    "last_updated": "2025-07-05T09:15:48.304597"
   },
   "adx_trend": {
-    "confidence": 0.244,
-    "last_updated": "2025-07-04T09:33:34.528352"
+    "confidence": 0.0698,
+    "last_updated": "2025-07-05T09:15:48.304874"
   },
   "ichimoku_base_conversion": {
-    "confidence": 0.2338,
-    "last_updated": "2025-07-04T09:33:34.530214"
+    "confidence": 0.1179,
+    "last_updated": "2025-07-05T09:15:48.306737"
   },
   "trend_follow": {
-    "confidence": 0.2407,
-    "last_updated": "2025-07-04T09:33:34.530421"
+    "confidence": 0.0698,
+    "last_updated": "2025-07-05T09:15:48.306950"
   },
   "heikin_ashi": {
-    "confidence": 0.2443,
-    "last_updated": "2025-07-04T09:33:34.530505"
+    "confidence": 0.1121,
+    "last_updated": "2025-07-05T09:15:48.307099"
   },
   "psar": {
-    "confidence": 0.9426,
-    "last_updated": "2025-07-04T00:33:50.554856"
+    "confidence": 0.1562,
+    "last_updated": "2025-07-04T19:47:06.591116"
   },
   "breakout": {
-    "confidence": 0.4913,
-    "last_updated": "2025-07-04T09:33:34.530332"
+    "confidence": 0.4688,
+    "last_updated": "2025-07-05T09:09:40.309648"
   },
   "atr_breakout": {
-    "confidence": 0.4998,
-    "last_updated": "2025-07-04T09:33:34.530585"
+    "confidence": 0.25,
+    "last_updated": "2025-07-05T09:09:40.310324"
   },
   "bollinger_breakout": {
-    "confidence": 0.9561,
-    "last_updated": "2025-07-04T09:12:10.641231"
+    "confidence": 0.5,
+    "last_updated": "2025-07-05T09:03:32.257474"
   },
   "llm": {
-    "confidence": 0.7072,
+    "confidence": 1.0,
     "last_updated": "2025-06-29T22:59:18.446892"
   },
   "ema_cross_adx": {
-    "confidence": 0.6446,
-    "last_updated": "2025-07-04T09:11:02.851203"
+    "confidence": 0.5,
+    "last_updated": "2025-07-04T19:47:06.591395"
   },
   "sma_rsi": {
-    "confidence": 0.68,
+    "confidence": 1.0,
     "last_updated": "2025-07-03T23:43:14.648551"
   },
   "bollinger_bands": {
-    "confidence": 0.68,
-    "last_updated": "2025-07-03T23:43:14.648759"
+    "confidence": 0.5,
+    "last_updated": "2025-07-04T19:37:54.549007"
   },
   "stoch_rsi": {
-    "confidence": 0.68,
+    "confidence": 1.0,
     "last_updated": "2025-07-03T23:43:14.650620"
   },
   "stoch_rsi_reversal": {
-    "confidence": 0.68,
+    "confidence": 1.0,
     "last_updated": "2025-07-03T23:43:14.650834"
   },
   "multi_confirm": {
-    "confidence": 0.95,
+    "confidence": 1.0,
     "last_updated": "2025-07-04T09:12:10.641362"
   }
 }

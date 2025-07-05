@@ -147,19 +147,19 @@ class TradeExecutor:
                         f"🤝 Multi-strategy agreement → Signal: {signal}, Strategies: [{strats_agreed}], Strategy Used: {stra}, Stake: ${stake:.2f}")
 
                     strategies_list = strats_agreed.split(", ")
-                    strats_confidence = [get_confidence(
-                        strategy) for strategy in strategies_list]
-                    conf_average = sum(strats_confidence) / \
-                        len(strats_confidence)
-                    print(
-                        f"Averagely strategies, [{strats_agreed}] are: {conf_average}% confident")
+                    # strats_confidence = [get_confidence(
+                    #    strategy) for strategy in strategies_list]
+                    # conf_average = sum(strats_confidence) / \
+                    #   len(strats_confidence)
+                   # print(
+                    #    f"Averagely strategies, [{strats_agreed}] are: {conf_average}% confident")
 
-                    if conf_average < self.cfg.signal_threshold:
-                        print("Not confident enough, skipping this trade")
-                        print(
-                            f"Confidence Average: {conf_average}, Threshold:{self.cfg.signal_threshold}")
-                        await asyncio.sleep(granularity*3)
-                        continue
+                    # if conf_average < self.cfg.signal_threshold:
+                    #    print("Not confident enough, skipping this trade")
+                    #    print(
+                    #        f"Confidence Average: {conf_average}, Threshold:{self.cfg.signal_threshold}")
+                    #    await asyncio.sleep(granularity*3)
+                    #    continue
 
                     base_stake = stake
                     if self.cfg.martingale_mode == "on" and self.cfg.max_consecutive_losses > self.consecutive_losses:

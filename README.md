@@ -70,16 +70,12 @@ binary_options_bot/
 
 ## ⚙️ Installation
 
-````markdown
-## ⚙️ Installation
-
 > **Prerequisites**
 >
 > - Git + Conda + Python 3.10 (only for the local route).
 > - Docker 23 + (This is the preferred option).
 > - A valid `env` file with your API keys & runtime settings.
 
----
 
 ### ▶️ Option A – Local (Python venv) Or Conda
 

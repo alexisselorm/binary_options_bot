@@ -93,7 +93,6 @@ source .venv/bin/activate # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 conda install -c conda-forge ta-lib  # Optional: for technical analysis of some strategies
 ```
-````
 
 Run the bot:
 

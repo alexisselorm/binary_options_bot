@@ -127,6 +127,8 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df.ta.bbands(length=20, std=2.0, append=True)
     df.ta.atr(length=14, append=True)          # ATRr_14 used by breakout
 
+    # ── channel/squeeze ─────────────────────────────────────────
+    df.ta.kc(length=20, scalar=1.5, append=True)  # Keltner Channel for squeeze/momentum
     df.dropna(inplace=True)
     return df
 
@@ -471,6 +473,41 @@ def harmonic_rsi_divergence(df: pd.DataFrame) -> Tuple[Optional[str], Optional[f
 
 
 @safe_strategy
+def squeeze_momentum_breakout(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
+    """
+    Volatility squeeze + momentum pop
+    - Detects Bollinger inside Keltner (squeeze) and waits for a close outside Bollinger with RSI + MACD confirmation.
+    - Inspired by TTM Squeeze style setups; tuned for fast binary expiries.
+    """
+    last = df.iloc[-1]
+    prev = df.iloc[-2] if len(df) > 1 else last
+
+    bbu = last["BBU_20_2.0"]
+    bbl = last["BBL_20_2.0"]
+    kcu = last["KCU_20_1.5"]
+    kcl = last["KCL_20_1.5"]
+
+    # squeeze condition: bands inside Keltner
+    squeeze = (bbu < kcu) and (bbl > kcl)
+
+    macd_hist = last["MACDh_12_26_9"]
+    macd_hist_prev = prev["MACDh_12_26_9"]
+    rsi = last["RSI_14"]
+    close = last["close"]
+
+    if squeeze:
+        return None, None
+
+    # Momentum breakout after squeeze release
+    if close > bbu and rsi > 55 and macd_hist > macd_hist_prev:
+        return "CALL", get_confidence("squeeze_momentum_breakout")
+    if close < bbl and rsi < 45 and macd_hist < macd_hist_prev:
+        return "PUT", get_confidence("squeeze_momentum_breakout")
+
+    return None, None
+
+
+@safe_strategy
 def multi_confirm(df: pd.DataFrame) -> Tuple[Optional[str], Optional[float]]:
     df = df.copy()
     df.index = pd.to_datetime(df["epoch"], unit="s")
@@ -541,6 +578,7 @@ RULE_BASED_STRATEGIES: Dict[str, RuleFn] = {
     "harmonic_rsi_divergence": harmonic_rsi_divergence,
     "bollinger_breakout": bollinger_breakout,
     "stoch_rsi_reversal": stoch_rsi_reversal,
+    "squeeze_momentum_breakout": squeeze_momentum_breakout,
     "multi_confirm": multi_confirm
 }
 

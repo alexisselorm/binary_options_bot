@@ -4,6 +4,7 @@ import asyncio
 from utils.config import Config
 from broker.deriv import DerivAPI, DerivAPIWrapper
 from trading.executor import TradeExecutor
+from trading.external_signal_handler import ExternalSignalHandler
 from notifier.telegram import TelegramNotifier
 
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -29,8 +30,20 @@ async def main():
         run_backtest()
         # run_voting_backtest()
         return
+        
     executor = TradeExecutor(api, cfg)
-    await executor.run()
+    
+    # Initialize external signal handler
+    signal_handler = ExternalSignalHandler(api, cfg, executor)
+    
+    # Start monitoring external signals in a separate thread
+    signal_handler.start_monitoring()
+    
+    try:
+        await executor.run()
+    finally:
+        # Clean shutdown
+        signal_handler.stop_monitoring()
 
 
 if __name__ == "__main__":

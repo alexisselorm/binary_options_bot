@@ -261,6 +261,31 @@ Live loop:
    - `logs/trade_history.csv`
    - `logs/confidence_tracker.json` (to monitor signal strength over time)
 
+---
+
+### 📡 MT4/MT5 External Signal Integration
+
+The bot supports receiving signals from MT4/MT5 platforms through a file-based bridge:
+
+1. **MT5 Indicator** generates signals based on technical analysis
+2. **MT5 Expert Advisor** reads the indicator and writes signals to `signals/signals.json`
+3. **Python Signal Handler** monitors the file and executes trades based on received signals
+4. **Existing Execution Logic** processes the external signals using the same risk management
+
+#### Signal Format
+```json
+{
+  "symbol": "EURUSD",
+  "direction": "CALL" | "PUT",
+  "timestamp": 1700000000,
+  "expiry_seconds": 60,
+  "confidence": 0.0-1.0 (optional),
+  "strategy": "string" (optional)
+}
+```
+
+To enable external signals, set `ENABLE_EXTERNAL_SIGNALS=true` in your env file.
+
 ## Confidence Tracker
 
 A dynamic system that chooses which strategy to use based on it's performance over time.

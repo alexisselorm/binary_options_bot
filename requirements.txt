@@ -33,10 +33,11 @@ matplotlib==3.10.3
 mdurl==0.1.2
 ml_dtypes==0.5.1
 mpmath==1.3.0
+mplfinance==0.12.10
 namex==0.1.0
 networkx==3.4.2
 # nltk==3.9.1
-numpy==1.23.5 
+numpy==1.23.5
 # nvidia-cublas-cu12==12.6.4.1
 # nvidia-cuda-cupti-cu12==12.6.80
 # nvidia-cuda-nvrtc-cu12==12.6.77

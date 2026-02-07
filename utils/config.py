@@ -36,8 +36,8 @@ class Config:
         self.backtest: bool = self._req("BACKTEST").lower() == "true"
 
         # 📡 Notifications
-        self.telegram_token: str = self._req("TELEGRAM_TOKEN")
-        self.telegram_chat_id: str = self._req("TELEGRAM_CHAT_ID")
+        self.telegram_token: str = self._values.get("TELEGRAM_TOKEN", "")
+        self.telegram_chat_id: str = self._values.get("TELEGRAM_CHAT_ID", "")
 
         # 🧠 AI Strategy
         self.model_type: str = self._req(
@@ -60,6 +60,10 @@ class Config:
         self.save_trade_history: bool = self._req(
             "SAVE_TRADE_HISTORY").lower() == "true"
         self.trade_history_path: str = self._req("TRADE_HISTORY_PATH")
+
+        # 📊 External Signal Settings
+        self.enable_external_signals: bool = self._values.get("ENABLE_EXTERNAL_SIGNALS", "false").lower() == "true"
+        self.external_signal_interval: int = int(self._values.get("EXTERNAL_SIGNAL_INTERVAL", "5"))
 
     # ------------------------------------------------------------------
     # Helper

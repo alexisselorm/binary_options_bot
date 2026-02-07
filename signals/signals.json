@@ -1,0 +1,18 @@
+[
+  {
+    "symbol": "R_100",
+    "direction": "CALL",
+    "timestamp": 1770507301.379176,
+    "expiry_seconds": 60,
+    "confidence": 0.7,
+    "strategy": "test_ma_crossover"
+  },
+  {
+    "symbol": "EURUSD",
+    "direction": "PUT",
+    "timestamp": 1770507301.380969,
+    "expiry_seconds": 120,
+    "confidence": 0.7,
+    "strategy": "test_ma_crossover"
+  }
+]

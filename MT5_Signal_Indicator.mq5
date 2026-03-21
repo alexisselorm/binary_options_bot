@@ -1,57 +1,75 @@
 //+------------------------------------------------------------------+
 //|                                             MT5_Signal_Indicator.mq5 |
 //|                                                                  |
-//|                                           Based on MQL5 samples   |
+//|                                   Production-Grade Signal Indicator|
+//|                                   Only generates signals (EA writes)|
 //+------------------------------------------------------------------+
 #property copyright ""
 #property link      ""
-#property version   "1.00"
+#property version   "2.0.0"
+#property strict
 
 #include <Arrays\ArrayObj.mqh>
 
-//--- indicator settings
+//--- Indicator settings
 #property indicator_chart_window
 #property indicator_buffers 2
 #property indicator_plots   2
 
-//--- plot SignalBuffer
+//--- Plot SignalBuffer
 indicator_color1 clrGreen;
 indicator_style1 STYLE_SOLID;
 indicator_width1 1;
-//--- plot TrendBuffer
+//--- Plot TrendBuffer
 indicator_color2 clrRed;
 indicator_style2 STYLE_SOLID;
 indicator_width2 1;
 
-//--- indicator buffers
+//--- Indicator buffers
 double SignalBuffer[];
 double TrendBuffer[];
 
-//--- input parameters
-input int InpMAPeriod = 14; // MA Period
-input ENUM_MA_METHOD InpMAMethod = MODE_SMA; // MA Method
-input ENUM_APPLIED_PRICE InpAppliedPrice = PRICE_CLOSE; // Applied Price
-input double InpDeviation = 0.0001; // Signal Deviation
+//--- Input parameters
+input int InpMAPeriod = 14;            // MA Period
+input ENUM_MA_METHOD InpMAMethod = MODE_SMA;  // MA Method
+input ENUM_APPLIED_PRICE InpAppliedPrice = PRICE_CLOSE;  // Applied Price
+input double InpDeviation = 0.0001;    // Signal Deviation
+input int InpMinBarsBetweenSignals = 5;  // Minimum bars between signals
 
 //--- Global variables
-string filename = "signals.json";
 datetime lastBarTime = 0;
+datetime lastSignalTime = 0;
+int barsSinceLastSignal = 0;
 
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
 int OnInit()
 {
-   //--- indicator buffers mapping
-   SetIndexBuffer(0,SignalBuffer,INDICATOR_DATA);
-   SetIndexBuffer(1,TrendBuffer,INDICATOR_DATA);
+   //--- Indicator buffers mapping
+   SetIndexBuffer(0, SignalBuffer, INDICATOR_DATA);
+   SetIndexBuffer(1, TrendBuffer, INDICATOR_DATA);
+
+   //--- Set indicator properties
+   ArraySetAsSeries(SignalBuffer, true);
+   ArraySetAsSeries(TrendBuffer, true);
+
+   //--- Set empty plot labels
+   PlotIndexSetString(0, PLOT_LABEL, "Signal");
+   PlotIndexSetString(1, PLOT_LABEL, "Trend");
+
+   Print("MT5 Signal Indicator initialized successfully");
+   Print("MA Period: ", InpMAPeriod, " | Method: ", InpMAMethod);
    
-   //--- set indicator properties
-   ArraySetAsSeries(SignalBuffer,true);
-   ArraySetAsSeries(TrendBuffer,true);
-   
-   //--- initialization done
    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator deinitialization function                       |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   Print("MT5 Signal Indicator deinitialized. Reason: ", reason);
 }
 
 //+------------------------------------------------------------------+
@@ -68,38 +86,39 @@ int OnCalculate(const int rates_total,
                 const long &volume[],
                 const int &spread[])
 {
-   //--- check for bars count
-   if(rates_total < InpMAPeriod)
+   //--- Check for bars count
+   if(rates_total < InpMAPeriod + 1)
       return(0);
 
-   //--- preliminary calculations
+   //--- Preliminary calculations
    int limit = rates_total - prev_calculated;
    if(prev_calculated > 0)
       limit++;
 
-   //--- main calculation loop
+   //--- Main calculation loop
    for(int i = 0; i < limit; i++)
    {
       // Calculate moving average
       double maValue = iMA(NULL, 0, InpMAPeriod, 0, InpMAMethod, InpAppliedPrice, i);
-      
-      // Determine trend direction
+
+      // Determine trend direction and signal strength
       if(i > 0)
       {
          if(close[i] > maValue && close[i-1] <= maValue)
          {
             // Uptrend detected - potential CALL signal
-            SignalBuffer[i] = 1.0;  // CALL signal
+            SignalBuffer[i] = 1.0;  // CALL signal (strength = 1.0)
             TrendBuffer[i] = 1.0;
          }
          else if(close[i] < maValue && close[i-1] >= maValue)
          {
             // Downtrend detected - potential PUT signal
-            SignalBuffer[i] = -1.0; // PUT signal
+            SignalBuffer[i] = -1.0; // PUT signal (strength = -1.0)
             TrendBuffer[i] = -1.0;
          }
          else
          {
+            // No crossover - neutral
             SignalBuffer[i] = 0.0;
             TrendBuffer[i] = 0.0;
          }
@@ -110,82 +129,44 @@ int OnCalculate(const int rates_total,
          TrendBuffer[i] = 0.0;
       }
    }
-   
-   // Check for new bar and new signal
+
+   //--- Track bars since last signal for rate limiting
    datetime currentBarTime = time[0];
    if(currentBarTime != lastBarTime)
    {
       lastBarTime = currentBarTime;
-      
-      // Check if we have a new signal on the current bar
-      if(MathAbs(SignalBuffer[0]) > 0.5)  // We have a signal
-      {
-         string signalDirection = SignalBuffer[0] > 0 ? "CALL" : "PUT";
-         
-         // Write signal to file
-         WriteSignalToFile(Symbol(), signalDirection, TimeCurrent(), 60);  // 60 seconds expiry
-      }
+      barsSinceLastSignal++;
    }
+
+   //--- Note: Signal writing is handled by the EA, not the indicator
+   //--- The indicator only sets buffer values for the EA to read
    
    return(rates_total);
 }
 
 //+------------------------------------------------------------------+
-//| Write signal to JSON file                                        |
+//| Check if a new signal is available (for EA to read)              |
 //+------------------------------------------------------------------+
-void WriteSignalToFile(string symbol, string direction, datetime timestamp, int expirySeconds)
+bool IsNewSignalAvailable(int &direction)
 {
-   // Create signal object
-   string signalJson = "{";
-   signalJson += "\"symbol\":\"" + symbol + "\",";
-   signalJson += "\"direction\":\"" + direction + "\",";
-   signalJson += "\"timestamp\":" + IntegerToString(timestamp) + ",";
-   signalJson += "\"expiry_seconds\":" + IntegerToString(expirySeconds) + ",";
-   signalJson += "\"confidence\":" + DoubleToString(0.7, 2) + ",";  // Fixed confidence
-   signalJson += "\"strategy\":\"ma_crossover\"";
-   signalJson += "}";
-   
-   // Read existing signals from file
-   string signalsArray = "[]";
-   int handle = FileOpen(filename, FILE_READ | FILE_TXT);
-   if(handle != INVALID_HANDLE)
+   // Check minimum bars between signals
+   if(barsSinceLastSignal < InpMinBarsBetweenSignals)
    {
-      signalsArray = FileReadString(handle);
-      FileClose(handle);
+      return false;
    }
    
-   // Parse the existing array and add new signal
-   string newSignalsArray = signalsArray;
-   
-   // If the array is empty or invalid, initialize it
-   if(StringLen(signalsArray) < 3 || signalsArray[0] != '[')
+   // Check if we have a signal on current bar
+   if(MathAbs(SignalBuffer[0]) > 0.5)
    {
-      newSignalsArray = "[" + signalJson + "]";
-   }
-   else
-   {
-      // Remove closing bracket
-      newSignalsArray = StringSubstr(signalsArray, 0, StringLen(signalsArray) - 1);
-      
-      // Add comma if array is not empty
-      if(StringLen(newSignalsArray) > 1)
-         newSignalsArray += ",";
-      
-      // Add new signal and closing bracket
-      newSignalsArray += signalJson + "]";
+      // Check if previous bar had no signal (new signal detection)
+      if(MathAbs(SignalBuffer[1]) <= 0.5)
+      {
+         direction = (SignalBuffer[0] > 0) ? 1 : -1;
+         barsSinceLastSignal = 0;
+         lastSignalTime = TimeCurrent();
+         return true;
+      }
    }
    
-   // Write the updated array back to file
-   handle = FileOpen(filename, FILE_WRITE | FILE_TXT);
-   if(handle != INVALID_HANDLE)
-   {
-      FileWriteString(handle, newSignalsArray);
-      FileClose(handle);
-      
-      Print("Signal written to file: ", signalJson);
-   }
-   else
-   {
-      Print("Error opening file for writing: ", filename);
-   }
+   return false;
 }

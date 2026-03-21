@@ -1,11 +1,9 @@
 import logging
 import asyncio
-import time
 import pandas as pd
 from typing import Dict, Optional
 from trading.strategy import collect_rule_signals, generate_signals, RULE_STRATEGY_NAMES
 from broker.deriv import DerivAPIWrapper
-import random
 import csv
 import os
 from datetime import datetime
@@ -39,7 +37,7 @@ class TradeExecutor:
                         "timestamp", "contract_id", "strategy",
                         "signal", "stake",
                         "entry_tick", "exit_tick", "profit",
-                        "status"
+                        "status", "source", "signal_id"
                     ]
                 )
 
@@ -54,7 +52,8 @@ class TradeExecutor:
             return
 
         print(f"✅ Starting trade executor loop (Granularity: {granularity}s)")
-        print(f"📊 External signals enabled: {getattr(self.cfg, 'enable_external_signals', False)}")
+        print(
+            f"📊 External signals enabled: {getattr(self.cfg, 'enable_external_signals', False)}")
 
         while True:
             try:
@@ -228,7 +227,7 @@ class TradeExecutor:
                     # Internal signal generation is disabled
                     print("-awaiting external signals...")
                     await asyncio.sleep(granularity)
-                    
+
             except Exception as e:
                 print(f"💥 Unhandled error: {e}")
                 await asyncio.sleep(granularity)
@@ -261,53 +260,108 @@ class TradeExecutor:
         print("❌ All trade execution attempts failed.")
         return None
 
-    def _on_contract_update(self, msg: Dict, signal: str, cid: str, strategies_list, stake):
-        print(f"📩 Contract update received for ID={cid}")
+    def _on_contract_update(
+        self,
+        msg: Dict,
+        signal: str,
+        cid: str,
+        strategies_list,
+        stake,
+        source: str = "internal",
+        signal_id: str = ""
+    ):
+        """
+        Handle contract update messages.
+
+        Args:
+            msg: WebSocket message with contract data
+            signal: Trade direction (CALL/PUT)
+            cid: Contract ID
+            strategies_list: List of strategy names
+            stake: Trade stake amount
+            source: Signal source (internal/external)
+            signal_id: Unique signal identifier
+        """
+        logger.debug(f"Contract update received for ID={cid}")
 
         poc = msg.get("proposal_open_contract", {})
         if poc.get("is_sold"):
             profit = poc.get("profit")
             if profit <= 0:
                 self.consecutive_losses += 1
-
             else:
                 self.consecutive_losses = 0
+
             entry_price = poc.get("entry_tick")
             exit_price = poc.get("exit_tick")
             sell_price = poc.get("sell_price")
             sell_time = poc.get("sell_time")
             status = poc.get("status")
-            self._log_trade(cid=cid, strategy=strategies_list, signal=signal, stake=stake,
-                            entry=entry_price, exit_=exit_price,
-                            profit=profit, status=status)
+
+            self._log_trade(
+                cid=cid,
+                strategy=strategies_list,
+                signal=signal,
+                stake=stake,
+                entry=entry_price,
+                exit_=exit_price,
+                profit=profit,
+                status=status,
+                source=source,
+                signal_id=signal_id
+            )
 
             record_result(strategy_names=strategies_list, won=(profit > 0))
 
-            print(f"💰 Contract {cid} | Signal={signal}")
-            print(f"🔹 Entry: {entry_price} | Exit: {exit_price}")
-            martingale_log = ''
-            if self.cfg.martingale_mode == 'on':
-                martingale_log += f"Martingale {'won' if profit > 0 else 'lost'} at step {self.consecutive_losses} |"
+            source_label = "[EXTERNAL]" if source != "internal" else ""
+            logger.info(
+                f"{source_label} Contract {cid} | Signal={signal} | "
+                f"Entry={entry_price} | Exit={exit_price} | P/L={profit}"
+            )
 
-            print(
-                f"🔸 Sold for: {sell_price} | Status: {status} | Profit/Loss: {profit} | {martingale_log}")
-            print(f"🕒 Sell Time: {sell_time}")
-            print("📉 Trade has been settled.")
-
-            # Wait for 5 minutes
+            # Wait for 5 minutes after loss
             if profit < 0:
-                print(
-                    "🔻 Trade resulted in a loss. Will wait for 5 minutes before next trade.")
+                logger.info(
+                    "Loss detected, waiting 5 minutes before next trade")
                 self.wait_on_loss = True
             else:
                 self.wait_on_loss = False
 
-    def _log_trade(self, *, cid: str, strategy: str, signal: str, stake: float, entry: float, exit_: float, profit: float, status: str):
+    def _log_trade(
+        self,
+        *,
+        cid: str,
+        strategy: str,
+        signal: str,
+        stake: float,
+        entry: float,
+        exit_: float,
+        profit: float,
+        status: str,
+        source: str = "internal",
+        signal_id: str = ""
+    ):
+        """
+        Log trade to CSV file.
+
+        Args:
+            cid: Contract ID
+            strategy: Strategy name(s)
+            signal: Direction (CALL/PUT)
+            stake: Trade stake amount
+            entry: Entry tick price
+            exit_: Exit tick price
+            profit: Trade profit/loss
+            status: Trade status
+            source: Signal source (internal/external)
+            signal_id: Unique signal identifier (for external signals)
+        """
         with open(self.log_path, "a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([
                 datetime.utcnow().isoformat(timespec="seconds"),
                 cid, strategy, signal,
-                f"{stake:.2f}", entry, exit_, profit, status
+                f"{stake:.2f}", entry, exit_, profit, status,
+                source, signal_id
             ])
-        print(f"📝 Logged trade {cid} → {profit}")
+        logger.debug(f"Logged trade {cid} -> {profit} | source={source}")

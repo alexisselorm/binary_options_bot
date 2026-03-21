@@ -5,6 +5,7 @@ No values are fetched from—or written to—your OS environment. We parse
 polluting `os.environ`.
 """
 from pathlib import Path
+from typing import Dict
 from dotenv import dotenv_values
 
 
@@ -62,8 +63,23 @@ class Config:
         self.trade_history_path: str = self._req("TRADE_HISTORY_PATH")
 
         # 📊 External Signal Settings
-        self.enable_external_signals: bool = self._values.get("ENABLE_EXTERNAL_SIGNALS", "false").lower() == "true"
-        self.external_signal_interval: int = int(self._values.get("EXTERNAL_SIGNAL_INTERVAL", "5"))
+        self.enable_external_signals: bool = self._values.get(
+            "ENABLE_EXTERNAL_SIGNALS", "false").lower() == "true"
+        self.external_signal_interval: int = int(
+            self._values.get("EXTERNAL_SIGNAL_INTERVAL", "5"))
+        self.external_signal_dir: str = self._values.get(
+            "EXTERNAL_SIGNAL_DIR", "signals")
+        self.external_signal_file: str = self._values.get(
+            "EXTERNAL_SIGNAL_FILE", "signals.json")
+        self.external_signal_max_age_seconds: int = int(
+            self._values.get("EXTERNAL_SIGNAL_MAX_AGE_SECONDS", "60")
+        )
+        self.external_signal_confidence_threshold: float = float(
+            self._values.get("EXTERNAL_SIGNAL_CONFIDENCE_THRESHOLD", "0.0")
+        )
+        self.external_symbol_map: Dict[str, str] = self._parse_symbol_map(
+            self._values.get("EXTERNAL_SYMBOL_MAP", "")
+        )
 
     # ------------------------------------------------------------------
     # Helper
@@ -75,3 +91,31 @@ class Config:
             raise KeyError(
                 f"❌ Required .env variable '{key}' is missing or empty.")
         return val
+
+    def _parse_symbol_map(self, value: str) -> Dict[str, str]:
+        """
+        Parse symbol map from env string format.
+
+        Format: "SRC1:DST1,SRC2:DST2" or JSON format
+        Example: "EURUSD:frxEURUSD,GBPUSD:frxGBPUSD"
+        """
+        if not value or not value.strip():
+            return {}
+
+        # Try JSON format first
+        if value.strip().startswith("{"):
+            try:
+                import json
+                return json.loads(value)
+            except json.JSONDecodeError:
+                pass
+
+        # Parse comma-separated pairs
+        result = {}
+        for pair in value.split(","):
+            pair = pair.strip()
+            if ":" in pair:
+                src, dst = pair.split(":", 1)
+                result[src.strip()] = dst.strip()
+
+        return result

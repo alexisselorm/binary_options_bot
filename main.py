@@ -2,7 +2,7 @@ import pandas as pd
 import warnings
 import asyncio
 from utils.config import Config
-from broker.deriv import DerivAPI, DerivAPIWrapper
+from broker.deriv import DerivAPIWrapper
 from trading.executor import TradeExecutor
 from trading.external_signal_handler import ExternalSignalHandler
 from notifier.telegram import TelegramNotifier
@@ -30,15 +30,18 @@ async def main():
         run_backtest()
         # run_voting_backtest()
         return
-        
+
     executor = TradeExecutor(api, cfg)
-    
-    # Initialize external signal handler
-    signal_handler = ExternalSignalHandler(api, cfg, executor)
-    
+
+    # Get the current event loop for async-safe dispatch from threads
+    loop = asyncio.get_running_loop()
+
+    # Initialize external signal handler with event loop reference
+    signal_handler = ExternalSignalHandler(api, cfg, executor, loop=loop)
+
     # Start monitoring external signals in a separate thread
     signal_handler.start_monitoring()
-    
+
     try:
         await executor.run()
     finally:

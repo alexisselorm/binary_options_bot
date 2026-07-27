@@ -4,6 +4,7 @@ No values are fetched from—or written to—your OS environment. We parse
 .env manually using `dotenv_values`, which returns a dictionary without
 polluting `os.environ`.
 """
+import os
 from pathlib import Path
 from typing import Dict
 from dotenv import dotenv_values
@@ -80,6 +81,37 @@ class Config:
         self.external_symbol_map: Dict[str, str] = self._parse_symbol_map(
             self._values.get("EXTERNAL_SYMBOL_MAP", "")
         )
+
+        # 🤖 LLM Orchestration Agent
+        self.agent_provider: str = self._values.get("AGENT_PROVIDER", "openai")
+        self.agent_model: str = self._values.get("AGENT_MODEL", "gpt-4o-mini")
+        self.agent_temperature: float = float(
+            self._values.get("AGENT_TEMPERATURE", "0.0")
+        )
+        self.agent_openai_api_key: str = self._values.get(
+            "OPENAI_API_KEY", os.getenv("OPENAI_API_KEY", "")
+        )
+        self.agent_deepseek_api_key: str = self._values.get(
+            "DEEPSEEK_API_KEY", os.getenv("DEEPSEEK_API_KEY", "")
+        )
+        self.agent_deepseek_base_url: str = self._values.get(
+            "DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"
+        )
+        self.agent_dry_run: bool = self._values.get(
+            "AGENT_DRY_RUN", "true"
+        ).lower() == "true"
+        allowed_symbols_raw = self._values.get("AGENT_ALLOWED_SYMBOLS", self.asset)
+        self.agent_allowed_symbols: list[str] = [
+            s.strip() for s in allowed_symbols_raw.split(",") if s.strip()
+        ] or [self.asset]
+        self.agent_max_concurrent_positions: int = int(
+            self._values.get("AGENT_MAX_CONCURRENT_POSITIONS", "1")
+        )
+        self.agent_max_stake: float = float(
+            self._values.get("AGENT_MAX_STAKE", str(self.max_stake))
+        )
+        self.agent_schema_retries: int = int(self._values.get("AGENT_SCHEMA_RETRIES", "2"))
+        self.agent_max_tool_steps: int = int(self._values.get("AGENT_MAX_TOOL_STEPS", "6"))
 
     # ------------------------------------------------------------------
     # Helper

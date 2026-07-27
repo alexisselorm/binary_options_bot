@@ -76,6 +76,11 @@ rich==14.0.0
 scikit-learn==1.7.0
 scipy==1.15.3
 six==1.17.0
+fastapi==0.115.0
+uvicorn==0.30.6
+langchain==0.3.27
+langchain-core==0.3.74
+langchain-openai==0.2.14
 # stable_baselines3==2.6.0
 sympy==1.14.0
 # ta-lib @ file:///home/conda/feedstock_root/build_artifacts/ta-lib_1731944860141/work

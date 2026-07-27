@@ -80,6 +80,12 @@ class DerivAPIWrapper:
             "end": "latest"
         })
 
+    async def get_open_positions(self) -> List[Dict[str, Any]]:
+        """Return currently open contracts from broker portfolio."""
+        resp = await self.api.portfolio({"portfolio": 1})
+        portfolio = resp.get("portfolio", {}) if isinstance(resp, dict) else {}
+        return portfolio.get("contracts", []) or []
+
     async def proposal(self, args: Dict[str, Any]) -> Dict[str, Any]:
         logger.debug(f"Requesting proposal: {args}")
         return await self.api.proposal(args)

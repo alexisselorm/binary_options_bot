@@ -258,6 +258,44 @@ Live loop:
 6. **On Settlement**
    → Log to:
 
+---
+
+## 🤖 LangChain LLM Orchestration Layer
+
+The bot now includes a FastAPI endpoint for LLM-orchestrated decisions:
+
+- `POST /agent/decide`
+- Request schema: `agent.schemas.DecisionRequest`
+- Response schema: `agent.schemas.DecisionOutput` (always structured JSON)
+
+### Provider configuration
+
+Set in `env`:
+
+- `AGENT_PROVIDER` = `openai` or `deepseek`
+- `AGENT_MODEL`
+- `OPENAI_API_KEY` / `DEEPSEEK_API_KEY`
+- `DEEPSEEK_BASE_URL` (default `https://api.deepseek.com/v1`)
+
+### Dry run behavior
+
+- `AGENT_DRY_RUN=true` (default) simulates placement and returns a receipt-shaped response.
+- `AGENT_DRY_RUN=false` allows real `proposal -> buy` execution through existing `TradeExecutor.execute_trade`.
+
+### Safety gates (code-enforced)
+
+- `AGENT_MAX_STAKE`
+- `AGENT_ALLOWED_SYMBOLS`
+- `AGENT_MAX_CONCURRENT_POSITIONS`
+- balance check before trade
+- duplicate signal id prevention in-loop
+
+### Run API
+
+```bash
+uvicorn api:app --host 0.0.0.0 --port 8000
+```
+
    - `logs/trade_history.csv`
    - `logs/confidence_tracker.json` (to monitor signal strength over time)
 

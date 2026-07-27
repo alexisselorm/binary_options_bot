@@ -1,8 +1,19 @@
 import unittest
+import sys
+import types
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from langchain_core.messages import AIMessage
+
+fake_strategy = types.ModuleType("trading.strategy")
+fake_strategy.add_indicators = lambda df: df
+fake_strategy.generate_signals = lambda df, balance, use_ai=False, strategy="sma_rsi": (None, None, None)
+sys.modules["trading.strategy"] = fake_strategy
+
+fake_executor = types.ModuleType("trading.executor")
+fake_executor.TradeExecutor = object
+sys.modules["trading.executor"] = fake_executor
 
 from agent.schemas import AgentAction, DecisionOutput, DecisionRequest, ProposalArgs
 from agent.service import TradingAgentService
@@ -160,4 +171,3 @@ class TestAgentService(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
